@@ -1,2 +1,2 @@
 # Dise-o-de-software
-proyecto de plata
+proyecto de gestión y manejo de presupuesto
