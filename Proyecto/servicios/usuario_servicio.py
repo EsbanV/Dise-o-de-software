@@ -1,4 +1,4 @@
-from config import db
+from configuracion import db
 from modelos import Usuario
 
 class UsuarioServicio:

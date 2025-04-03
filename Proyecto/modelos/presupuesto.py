@@ -1,12 +1,8 @@
-from config import db
-from sqlalchemy.orm import relationship, joinedload
-from .categoria import Categoria
-from .cuenta_bancaria import CuentaBancaria
+from servicios.base_datos import db
 
 class Presupuesto(db.Model):
     __tablename__ = 'presupuestos'
     id = db.Column(db.Integer, primary_key=True)
+    monto_asignado = db.Column(db.Float, nullable=False)
+    monto_gastado = db.Column(db.Float, default=0)
     categoria_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=False)
-    gasto_mensual = db.Column(db.Integer, nullable=False)
-    saldo_restante = db.Column(db.Integer, nullable=False)
-    categoria = relationship("Categoria", back_populates="presupuestos")

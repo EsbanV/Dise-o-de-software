@@ -1,7 +1,12 @@
 from werkzeug.security import generate_password_hash, check_password_hash
+import secrets
 
-def encriptar_contrasena(contrasena):
-    return generate_password_hash(contrasena)
+def hash_password(password):
+    return generate_password_hash(password)
 
-def verificar_contrasena(contrasena, hash_guardado):
-    return check_password_hash(hash_guardado, contrasena)
+def verificar_password(hashed_password, password):
+   return check_password_hash(hashed_password, password)
+
+def generar_token_csrf():
+
+    return secrets.token_hex(16)
