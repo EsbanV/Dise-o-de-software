@@ -1,15 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from servicios.usuario_servicio import UsuarioServicio
 
-usuario_bp = Blueprint('usuario_bp', __name__, template_folder='../plantillas', static_folder='../estaticos')
+usuario_rutas = Blueprint('usuario_rutas', __name__, template_folder='../templates', static_folder='../static')
 
-@usuario_bp.route('/registro', methods=['GET', 'POST'])
+@usuario_rutas.route('/registro', methods=['GET', 'POST'])
 def registrar_usuario():
-    """
-    Ruta para registrar nuevos usuarios.
-    En GET: Muestra el formulario de registro.
-    En POST: Procesa los datos enviados y registra al usuario.
-    """
     if request.method == 'POST':
         nombre = request.form.get('nombre')
         correo = request.form.get('correo')
@@ -29,7 +24,7 @@ def registrar_usuario():
     return render_template('registro.html')
 
 
-@usuario_bp.route('/login', methods=['GET', 'POST'])
+@usuario_rutas.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         correo = request.form.get('correo')
@@ -45,11 +40,8 @@ def login():
     
     return render_template('login.html')
 
-@usuario_bp.route('/logout')
+@usuario_rutas.route('/logout')
 def logout():
-    """
-    Ruta para cerrar sesión.
-    """
     session.pop('usuario_id', None)
     flash('Has cerrado sesión exitosamente.', 'success')
     return redirect(url_for('usuario_bp.login'))
