@@ -1,5 +1,5 @@
 from datetime import datetime
-from servicios.base_datos import db
+from configuracion.extensiones import db
 
 class Transaccion(db.Model):
     __tablename__ = 'transacciones'

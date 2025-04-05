@@ -1,4 +1,4 @@
-from servicios.base_datos import db
+from configuracion.extensiones import db
 
 class CuentaBancaria(db.Model):
     __tablename__ = 'cuentas_bancarias'

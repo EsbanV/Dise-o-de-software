@@ -1,4 +1,4 @@
-from servicios.base_datos import db
+from configuracion.extensiones import db
 
 class Presupuesto(db.Model):
     __tablename__ = 'presupuestos'

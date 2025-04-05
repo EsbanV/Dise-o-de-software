@@ -1,4 +1,5 @@
 from flask import Flask
+from utilidades.seguridad import generar_token_csrf
 from rutas.cuenta_bancaria_rutas import cuenta_rutas
 from rutas.categoria_rutas import categoria_rutas
 from rutas.presupuesto_rutas import presupuesto_rutas
@@ -17,6 +18,11 @@ def create_app():
     app.register_blueprint(transaccion_rutas, url_prefix='/api')
     app.register_blueprint(usuario_rutas, url_prefix='/api')
     app.register_blueprint(index_rutas)
+
+    @app.context_processor
+    def inject_csrf_token():
+        return dict(csrf_token=generar_token_csrf)
+
 
     return app
 

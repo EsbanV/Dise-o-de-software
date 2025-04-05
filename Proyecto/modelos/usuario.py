@@ -1,4 +1,4 @@
-from configuracion import db
+from configuracion.extensiones import db
 from sqlalchemy.orm import relationship
 
 class Usuario(db.Model):
