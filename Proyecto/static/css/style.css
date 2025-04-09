@@ -64,7 +64,7 @@
   
   /* Fondo principal (imagen nocturna) */
   .hero-bg {
-    background: url('img/FondoHD.jpg')
+    background: url('../img/FondoHD.jpg')
       no-repeat center center/cover;
     height: 100vh;
     display: flex;
