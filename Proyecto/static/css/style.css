@@ -1,0 +1,159 @@
+/* style.css */
+
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #121212; /* Color de fondo oscuro */
+    color: #fff;
+  }
+  
+  /* Barra de navegación */
+  .navbar {
+    width: 100%;
+    padding: 1em 2em;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed; /* para que se mantenga en la parte superior */
+    top: 0;
+    left: 0;
+    z-index: 999;
+  }
+  
+  .logo {
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+  
+  .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 1em;
+  }
+  
+  .nav-links li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 400;
+    transition: color 0.3s;
+  }
+  
+  .nav-links li a:hover {
+    color: #00bcd4; /* un efecto de hover */
+  }
+  
+  .btn-register,
+  .btn-login {
+    padding: 0.4em 0.8em;
+    border: 2px solid #fff;
+    border-radius: 3px;
+    transition: 0.3s;
+  }
+  
+  .btn-register:hover,
+  .btn-login:hover {
+    background-color: #fff;
+    color: #000;
+  }
+  
+  /* Fondo principal (imagen nocturna) */
+  .hero-bg {
+    background: url('img/FondoHD.jpg')
+      no-repeat center center/cover;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 3.5em; /* Para que el contenido no quede debajo de la navbar fija */
+  }
+  
+  /* Contenedor del formulario */
+  .form-container {
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    padding: 2em 2.5em;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .form-container h2 {
+    text-align: center;
+    margin-bottom: 1em;
+  }
+  
+  /* Campos del formulario */
+  .input-field {
+    margin-bottom: 1em;
+  }
+  
+  .input-field input {
+    width: 100%;
+    padding: 0.7em;
+    border: none;
+    outline: none;
+    border-radius: 4px;
+    font-size: 0.95rem;
+  }
+  
+  /* Opciones del formulario (recordar password, etc.) */
+  .form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.8em 0;
+    font-size: 0.9rem;
+  }
+  
+  .form-options a {
+    text-decoration: none;
+    color: #fff;
+    transition: 0.2s;
+  }
+  
+  .form-options a:hover {
+    color: #00bcd4;
+  }
+  
+  /* Botón principal */
+  .btn-login,
+  .btn-register {
+    background-color: #00bcd4;
+    border: none;
+    width: 100%;
+    padding: 0.8em;
+    margin-top: 0.2em;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: 600;
+    transition: background-color 0.3s;
+  }
+  
+  .btn-login:hover,
+  .btn-register:hover {
+    background-color: #0097a7;
+  }
+  
+  /* Texto para cambiar a registro/login */
+  .switch-page {
+    margin-top: 1em;
+    text-align: center;
+  }
+  .switch-page a {
+    color: #00bcd4;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .switch-page a:hover {
+    text-decoration: underline;
+  }
+  

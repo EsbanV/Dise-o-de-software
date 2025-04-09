@@ -20,6 +20,10 @@ class UsuarioServicio:
     @staticmethod
     def obtener_usuario_por_id(usuario_id):
         return Usuario.query.get(usuario_id)
+    
+    @staticmethod
+    def obtener_usuario_por_correo(correo):
+        return Usuario.query.filter_by(correo=correo).first()
 
     @staticmethod
     def obtener_todos_los_usuarios():

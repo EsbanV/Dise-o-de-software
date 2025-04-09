@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from servicios.autenticacion import ServicioAutenticacion
 from servicios.usuario_servicio import UsuarioServicio
 
-usuario_rutas = Blueprint('usuario_rutas', __name__, template_folder='../templates', static_folder='../static')
+usuario_rutas = Blueprint('usuario_rutas', __name__, template_folder='../templates')
 
 @usuario_rutas.route('/registro', methods=['GET', 'POST'])
 def registrar_usuario():

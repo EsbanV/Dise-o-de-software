@@ -1,0 +1,141 @@
+/* static/css/dashboard.css */
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6;
+  }
+  
+  .dashboard-container {
+    display: flex;
+    height: 100vh;
+  }
+  
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    background-color: #ffffff;
+    padding: 1.5em 1em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-right: 1px solid #e5e7eb;
+  }
+  
+  .logo {
+    font-size: 1.5em;
+    font-weight: 600;
+    margin-bottom: 2em;
+  }
+  
+  .nav-links {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .nav-links li {
+    margin: 1em 0;
+    font-weight: 500;
+    color: #555;
+    cursor: pointer;
+  }
+  
+  .nav-links li.active {
+    color: #3b82f6;
+    font-weight: bold;
+  }
+  
+  .logout {
+    background-color: #f87171;
+    border: none;
+    color: white;
+    padding: 0.6em;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  /* MAIN CONTENT */
+  .main-content {
+    flex: 1;
+    padding: 1.5em 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+  }
+  
+  /* HEADER */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .search-bar {
+    width: 300px;
+    padding: 0.5em;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .profile {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+  }
+  
+  .profile img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+  }
+  
+  /* STATS */
+  .overview {
+    display: flex;
+    gap: 1em;
+  }
+  
+  .stat {
+    flex: 1;
+    background: white;
+    padding: 1em;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  
+  /* CONTENT */
+  .content {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1em;
+  }
+  
+  .card {
+    background: white;
+    padding: 1em;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  
+  .notice {
+    background: #3b82f6;
+    color: white;
+  }
+  
+  .notice button {
+    margin-top: 1em;
+    background: white;
+    color: #3b82f6;
+    border: none;
+    padding: 0.5em 1em;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .bar {
+    height: 120px;
+    background: #93c5fd;
+    margin-top: 1em;
+    border-radius: 5px;
+  }
+  
