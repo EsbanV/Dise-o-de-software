@@ -17,7 +17,7 @@
       <h2 class="logo">MiApp</h2>
       <nav class="nav-links">
         <a href="#" class="active">Inicio</a>
-        <a href="#">Cuentas</a>
+        <a href="{{ url_for('cuenta_rutas.crear_cuenta_vista') }}">Cuentas</a>
         <a href="#">Categorías</a>
         <a href="#">Presupuestos</a>
         <a href="#">Transacciones</a>
@@ -34,7 +34,7 @@
         <input type="text" class="search-bar" placeholder="Buscar...">
         <div class="user-profile">
           <img src="{{ url_for('static', filename='img/user.jpg') }}" alt="Usuario">
-          <span>David</span>
+          <span>{{usuario.nombre}}</span>
         </div>
       </header>
 

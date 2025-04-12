@@ -12,6 +12,10 @@ class CuentaBancariaServicio:
     @staticmethod
     def obtener_cuentas(usuario_id):
         return CuentaBancaria.query.filter_by(usuario_id=usuario_id).all()
+    
+    @staticmethod
+    def obtener_cuenta_por_id(cuenta_id):
+        return CuentaBancaria.query.get(cuenta_id)
 
     @staticmethod
     def eliminar_cuenta(cuenta_id):
