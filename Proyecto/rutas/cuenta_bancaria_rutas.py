@@ -1,22 +1,7 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, session, current_app
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, session
 from servicios.cuenta_bancaria_servicio import CuentaBancariaServicio
 
 cuenta_rutas = Blueprint('cuenta_rutas', __name__)
-
-@cuenta_rutas.route('/cuentas', methods=['POST'])
-def crear_cuenta():
-    data = request.get_json()
-    nombre = data.get('nombre')
-    saldo_inicial = data.get('saldo_inicial', 0)
-    usuario_id = data.get('usuario_id')
-    cuenta = CuentaBancariaServicio.crear_cuenta(nombre, saldo_inicial, usuario_id)
-    return jsonify({"id": cuenta.id, "nombre": cuenta.nombre, "saldo": cuenta.saldo}), 201
-
-@cuenta_rutas.route('/cuentas/<int:usuario_id>', methods=['GET'])
-def listar_cuentas(usuario_id):
-    cuentas = CuentaBancariaServicio.obtener_cuentas(usuario_id)
-    cuentas_serializadas = [{"id": c.id, "nombre": c.nombre, "saldo": c.saldo} for c in cuentas]
-    return jsonify(cuentas_serializadas), 200
 
 @cuenta_rutas.route('/cuentas_vista', methods=['GET', 'POST'])
 def crear_cuenta_vista():
@@ -37,3 +22,28 @@ def crear_cuenta_vista():
     
     cuentas = CuentaBancariaServicio.obtener_cuentas(usuario_id)
     return render_template('cuentas.html', cuentas=cuentas)
+
+@cuenta_rutas.route('/cuentas/actualizar/<int:cuenta_id>', methods=['GET', 'POST'])
+def actualizar_cuenta_vista(cuenta_id):
+    cuenta = CuentaBancariaServicio.obtener_cuenta_por_id(cuenta_id)
+    if not cuenta:
+        flash('Cuenta no encontrada.', 'danger')
+        return redirect(url_for('cuenta_rutas.crear_cuenta_vista'))
+    
+    if request.method == 'POST':
+        nombre = request.form.get('nombre')
+        try:
+            saldo = float(request.form.get('saldo'))
+        except (TypeError, ValueError):
+            saldo = cuenta.saldo  # Conservamos el saldo actual si no se introduce uno válido
+        CuentaBancariaServicio.actualizar_cuenta(cuenta_id, nombre, saldo)
+        flash('Cuenta actualizada exitosamente.', 'success')
+        return redirect(url_for('cuenta_rutas.crear_cuenta_vista'))
+    
+    return render_template('cuenta_actualizar.html', cuenta=cuenta)
+
+@cuenta_rutas.route('/cuentas/eliminar/<int:cuenta_id>', methods=['POST'])
+def eliminar_cuenta_vista(cuenta_id):
+    CuentaBancariaServicio.eliminar_cuenta(cuenta_id)
+    flash('Cuenta eliminada.', 'success')
+    return redirect(url_for('cuenta_rutas.crear_cuenta_vista'))
