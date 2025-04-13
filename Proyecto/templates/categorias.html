@@ -15,7 +15,6 @@
         <form method="post" action="{{ url_for('categoria_rutas.crear_categoria_vista') }}">
             <label for="nombre">Nombre de la categoría:</label>
             <input type="text" name="nombre" required>
-            <!-- Suponemos que el usuario ya ha seleccionado una cuenta, se puede recibir vía formulario o deducir del usuario -->
             <label for="cuenta_id">ID de la Cuenta Bancaria:</label>
             <input type="number" name="cuenta_id" required>
             <button type="submit">Crear categoría</button>

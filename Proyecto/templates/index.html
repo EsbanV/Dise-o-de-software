@@ -18,9 +18,9 @@
       <nav class="nav-links">
         <a href="#" class="active">Inicio</a>
         <a href="{{ url_for('cuenta_rutas.crear_cuenta_vista') }}">Cuentas</a>
-        <a href="#">Categorías</a>
-        <a href="#">Presupuestos</a>
-        <a href="#">Transacciones</a>
+        <a href="{{ url_for('categoria_rutas.crear_categoria_vista') }}">Categorías</a>
+        <a href="{{ url_for('presupuesto_rutas.ver_presupuestos') }}">Presupuestos</a>
+        <a href="{{ url_for('transaccion_rutas.registrar_transaccion_vista') }}">Transacciones</a>
         <a href="#">Perfil</a>
         <a href="{{ url_for('usuario_rutas.logout') }}">Cerrar sesión</a>
       </nav>
