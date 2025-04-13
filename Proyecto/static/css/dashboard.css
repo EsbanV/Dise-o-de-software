@@ -1,0 +1,202 @@
+/* ===== RESET Y FUENTE BASE ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #121212;
+  color: #f1f1f1;
+}
+
+/* ===== LAYOUT GENERAL ===== */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: 220px;
+  background-color: #1f1f2e;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  position: fixed;
+  height: 100%;
+}
+
+.sidebar .logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #f5f5f5;
+  text-align: center;
+}
+
+.sidebar .menu {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sidebar .menu a {
+  color: #cfcfcf;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.sidebar .menu a:hover {
+  background-color: #2e2e42;
+}
+
+/* ===== MAIN CONTENT ===== */
+.main-content {
+  margin-left: 220px;
+  flex: 1;
+  padding: 2rem;
+  background-color: #181818;
+}
+
+/* ===== HEADER ===== */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h2 {
+  font-size: 1.4rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* ===== TRANSACCIONES RECIENTES ===== */
+.transactions-list {
+  margin-top: 2rem;
+}
+
+.transaction-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.transaction-items li {
+  display: flex;
+  justify-content: space-between;
+  background-color: #2a2a2a;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #e0e0e0;
+  transition: background 0.2s ease;
+}
+
+.transaction-items li:hover {
+  background-color: #353535;
+}
+
+.transaction-items li span:nth-child(1) {
+  flex: 2;
+  font-weight: 500;
+}
+
+.transaction-items li span:nth-child(2) {
+  flex: 1;
+  text-align: center;
+  color: #9efff7;
+}
+
+.transaction-items li span:nth-child(3) {
+  flex: 1;
+  text-align: right;
+  font-weight: bold;
+  color: #f07373;
+}
+
+.transaction-items li span.positivo {
+  color: #6fff7d;
+}
+
+.transaction-items li span.negativo {
+  color: #f07373;
+}
+
+
+
+.header-actions input[type="search"] {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: none;
+  background: #2c2c3d;
+  color: white;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-profile img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+/* ===== CARDS ===== */
+.cards-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background-color: #222;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 0 12px rgba(0,0,0,0.2);
+}
+
+.card h3 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #f0f0f0;
+}
+
+.card p {
+  font-size: 1.3rem;
+  color: #9efff7;
+}
+
+/* ===== CHARTS ===== */
+.charts-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.chart-box {
+  background-color: #222;
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+.chart-box h4 {
+  margin-bottom: 1rem;
+  color: #f0f0f0;
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Categorías</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Mis Categorías</h1>
+    </header>
+    <main>
+        <h2>Crear nueva categoría</h2>
+        <form method="post" action="{{ url_for('categoria_rutas.crear_categoria_vista') }}">
+            <label for="nombre">Nombre de la categoría:</label>
+            <input type="text" name="nombre" required>
+            <!-- Suponemos que el usuario ya ha seleccionado una cuenta, se puede recibir vía formulario o deducir del usuario -->
+            <label for="cuenta_id">ID de la Cuenta Bancaria:</label>
+            <input type="number" name="cuenta_id" required>
+            <button type="submit">Crear categoría</button>
+        </form>
+        <h2>Lista de categorías</h2>
+        <ul>
+            {% for categoria in categorias %}
+                <li>
+                    {{ categoria.nombre }} - (Cuenta: {{ categoria.cuenta_id }}) 
+                    (ID: {{ categoria.id }})
+                </li>
+            {% else %}
+                <li>No hay categorías registradas.</li>
+            {% endfor %}
+        </ul>
+    </main>
+    <footer>
+        <p>&copy; Gestor de Presupuestos 2024. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>
