@@ -1,3 +1,3 @@
-from .usuario_controlador import ControladorUsuario
-from .presupuesto_controlador import ControladorPresupuesto
-from .transaccion_controlador import ControladorTransaccion
+from .usuario_controlador import registrar_usuario_controller, login_controller, logout_controller
+from .presupuesto_controlador import gestionar_presupuestos_controller, eliminar_presupuesto_controller
+from .transaccion_controlador import gestionar_transacciones_controller, actualizar_transaccion_controller, eliminar_transaccion_controller

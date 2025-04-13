@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Transacciones</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Mis Transacciones</h1>
+    </header>
+    <main>
+        <h2>Registrar nueva transacción</h2>
+        <form method="post" action="{{ url_for('transaccion_rutas.gestionar_transacciones') }}">
+            <label for="categoria_id">ID de la Categoría:</label>
+            <input type="number" name="categoria_id" required>
+            <label for="monto">Monto:</label>
+            <input type="number" name="monto" step="0.01" required>
+            <button type="submit">Registrar transacción</button>
+        </form>
+        <h2>Lista de transacciones</h2>
+        <ul>
+            {% for transaccion in transacciones %}
+                <li>
+                    {{ transaccion.monto }} - Categoría: {{ transaccion.categoria_id }} 
+                    (Fecha: {{ transaccion.fecha }})
+                </li>
+            {% else %}
+                <li>No hay transacciones registradas.</li>
+            {% endfor %}
+        </ul>
+    </main>
+    <footer>
+        <p>&copy; Gestor de Presupuestos 2024. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>

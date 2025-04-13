@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Presupuestos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Mis Presupuestos</h1>
+    </header>
+    <main>
+        <h2>Asignar presupuestos</h2>
+        <form method="post" action="{{ url_for('presupuesto_rutas.gestionar_presupuestos') }}">
+            {% for categoria in categorias %}
+                <div class="form-group">
+                    <label for="presupuesto_{{ categoria.id }}">{{ categoria.nombre }}</label>
+                    <input type="number" 
+                           id="presupuesto_{{ categoria.id }}" 
+                           name="presupuesto_{{ categoria.id }}" 
+                           step="0.01" 
+                           min="0"
+                           value="{{ presupuestos.get(categoria.id, {}).get('monto_asignado', 0) }}">
+                    <span class="gastado">
+                        Gastado: {{ presupuestos.get(categoria.id, {}).get('monto_gastado', 0) }}
+                    </span>
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn-primary">Guardar presupuestos</button>
+        </form>
+        
+        <h2>Resumen de presupuestos</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Categoría</th>
+                    <th>Asignado</th>
+                    <th>Gastado</th>
+                    <th>Restante</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for categoria in categorias %}
+                    {% set monto_asignado = presupuestos.get(categoria.id, {}).get('monto_asignado', 0) %}
+                    {% set monto_gastado = presupuestos.get(categoria.id, {}).get('monto_gastado', 0) %}
+                    {% set saldo_restante = monto_asignado - monto_gastado %}
+                    <tr>
+                        <td>{{ categoria.nombre }}</td>
+                        <td>{{ monto_asignado }}</td>
+                        <td>{{ monto_gastado }}</td>
+                        <td class="{% if saldo_restante < 0 %}danger{% endif %}">
+                            {{ saldo_restante }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+    <footer>
+        <p>&copy; Gestor de Presupuestos 2024. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>

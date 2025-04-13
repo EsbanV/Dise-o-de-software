@@ -12,7 +12,7 @@
     </header>
     <main>
         <h2>Crear nueva categoría</h2>
-        <form method="post" action="{{ url_for('categoria_rutas.crear_categoria_vista') }}">
+        <form method="post" action="{{ url_for('categoria_rutas.gestionar_categorias') }}">
             <label for="nombre">Nombre de la categoría:</label>
             <input type="text" name="nombre" required>
             <!-- Suponemos que el usuario ya ha seleccionado una cuenta, se puede recibir vía formulario o deducir del usuario -->

@@ -4,17 +4,17 @@ from servicios.categoria_servicio import CategoriaServicio
 categoria_rutas = Blueprint('categoria_rutas', __name__)
 
 @categoria_rutas.route('/categorias_vista', methods=['GET', 'POST'])
-def crear_categoria_vista():
+def gestionar_categorias():
     if request.method == 'POST':
         nombre = request.form.get('nombre')
         try:
             cuenta_id = int(request.form.get('cuenta_id'))
         except (TypeError, ValueError):
             flash('Debe proporcionar un ID de cuenta válido.', 'warning')
-            return redirect(url_for('categoria_rutas.crear_categoria_vista'))
+            return redirect(url_for('categoria_rutas.gestionar_categorias'))
         CategoriaServicio.crear_categoria(nombre, cuenta_id)
         flash('Categoría creada exitosamente.', 'success')
-        return redirect(url_for('categoria_rutas.crear_categoria_vista'))
+        return redirect(url_for('categoria_rutas.gestionar_categorias'))
     
     cuenta_id = request.args.get('cuenta_id', type=int)
     if cuenta_id:
@@ -29,13 +29,13 @@ def actualizar_categoria_vista(categoria_id):
     categoria = categoria[0] if isinstance(categoria, list) and categoria else None
     if not categoria:
         flash('Categoría no encontrada.', 'danger')
-        return redirect(url_for('categoria_rutas.crear_categoria_vista'))
+        return redirect(url_for('categoria_rutas.gestionar_categorias'))
     
     if request.method == 'POST':
         nuevo_nombre = request.form.get('nombre')
         CategoriaServicio.actualizar_categoria(categoria_id, nuevo_nombre)
         flash('Categoría actualizada.', 'success')
-        return redirect(url_for('categoria_rutas.crear_categoria_vista'))
+        return redirect(url_for('categoria_rutas.gestionar_categorias'))
     
     return render_template('categoria_actualizar.html', categoria=categoria)
 
@@ -43,4 +43,4 @@ def actualizar_categoria_vista(categoria_id):
 def eliminar_categoria_vista(categoria_id):
     CategoriaServicio.eliminar_categoria(categoria_id)
     flash('Categoría eliminada.', 'success')
-    return redirect(url_for('categoria_rutas.crear_categoria_vista'))
+    return redirect(url_for('categoria_rutas.gestionar_categorias'))
