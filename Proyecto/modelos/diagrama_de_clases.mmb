@@ -1,0 +1,97 @@
+classDiagram
+    %% ---------------------------
+    %% Modelos (Entidades)
+    %% ---------------------------
+    class Usuario {
+        +int id
+        +string nombre
+        +string correo
+        +string contrasena
+        +CuentaBancaria[] cuentas_bancarias
+    }
+
+    class CuentaBancaria {
+        +int id
+        +string nombre
+        +float saldo
+        +int usuario_id
+    }
+
+    class Categoria {
+        +int id
+        +string nombre
+        +int cuenta_id
+    }
+
+    class Presupuesto {
+        +int id
+        +float monto_asignado
+        +float monto_gastado
+        +int categoria_id
+    }
+
+    class Transaccion {
+        +int id
+        +float monto
+        +datetime fecha
+        +int categoria_id
+    }
+
+    %% Relaciones entre Modelos
+    Usuario "1" --> "*" CuentaBancaria : posee
+    CuentaBancaria "1" --> "*" Categoria : clasifica
+    Categoria "1" --> "1" Presupuesto : tiene
+    Categoria "1" --> "*" Transaccion : registra
+
+    %% ---------------------------
+    %% Servicios
+    %% ---------------------------
+    class ServicioBaseDatos {
+        +agregar(instancia)
+        +actualizar()
+        +eliminar(instancia)
+        +obtener_todos(modelo)
+        +obtener_por_id(modelo, id_)
+    }
+
+    class ServicioAutenticacion {
+        +registrar_usuario(nombre, correo, contrasena)
+        +autenticar_usuario(correo, contrasena)
+    }
+
+    class UsuarioServicio {
+        +crear_usuario(nombre, correo, contrasena)
+        +obtener_usuario_por_id(usuario_id)
+        +obtener_todos_los_usuarios()
+        +actualizar_usuario(usuario_id, nombre, correo, contrasena)
+        +eliminar_usuario(usuario_id)
+    }
+
+    class CuentaBancariaServicio {
+        +crear_cuenta(nombre, saldo_inicial, usuario_id)
+        +obtener_cuentas(usuario_id)
+        +eliminar_cuenta(cuenta_id)
+    }
+
+    class CategoriaServicio {
+        +crear_categoria(nombre, cuenta_id)
+        +obtener_categorias(cuenta_id)
+    }
+
+    class PresupuestoServicio {
+        +asignar_presupuesto(categoria_id, monto_asignado)
+        +obtener_presupuesto(categoria_id)
+    }
+
+    class TransaccionServicio {
+        +registrar_transaccion(categoria_id, monto)
+        +obtener_transacciones(categoria_id)
+    }
+
+    %% Relaciones de uso (servicios -> base de datos)
+    ServicioAutenticacion ..> ServicioBaseDatos : usa
+    UsuarioServicio ..> ServicioBaseDatos : usa
+    CuentaBancariaServicio ..> ServicioBaseDatos : usa
+    CategoriaServicio ..> ServicioBaseDatos : usa
+    PresupuestoServicio ..> ServicioBaseDatos : usa
+    TransaccionServicio ..> ServicioBaseDatos : usa

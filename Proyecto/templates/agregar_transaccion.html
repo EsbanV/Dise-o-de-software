@@ -3,30 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
     <title>Agregar Transacción</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <header>
-        <div class="perfil">
-            <img src="\static/img/user.jpg" alt="Perfil">
-            <p>Usuario: {{ session['user'] }}</p>
-        </div>
-        <h1>Agregar Transacción</h1>
-    </header>
-    <main>
-        <form action="{{ url_for('agregar_transaccion', categoria_id=categoria_id) }}" method="post">
-            <label for="descripcion">Descripción:</label>
-            <input type="text" name="descripcion" required>
-            <label for="monto">Monto:</label>
-            <input type="number" name="monto" required>
-            <label for="fecha">Fecha (opcional):</label>
-            <input type="date" name="fecha">
-            <button type="submit">Agregar Transacción</button>
-        </form>
-        <a href="{{ url_for('index') }}">Regresar</a>
-    </main>
+    {% extends 'base.html' %}
+
+    {% block content %}
+        <header>
+            <h1>Agregar Transacción</h1>
+        </header>
+        <main>
+            <form action="{{ url_for('transaccion_rutas.registrar_transaccion') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <label for="tipo">Tipo:</label>
+                <select id="tipo" name="tipo" required title="Selecciona el tipo de transacción">
+                    <option value="ingreso">Ingreso</option>
+                    <option value="egreso">Egreso</option>
+                </select><br>
+
+                <label for="monto">Monto:</label>
+                <input type="number" step="0.01" id="monto" name="monto" required placeholder="Ingrese el monto" title="Ingrese el monto de la transacción"><br>
+
+                <label for="descripcion">Descripción:</label>
+                <input type="text" id="descripcion" name="descripcion" required placeholder="Ingrese una descripción" title="Ingrese una breve descripción"><br>
+
+                <label for="categoria_id">Categoría:</label>
+                <select id="categoria_id" name="categoria_id" required title="Seleccione una categoría">
+                    {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                    {% endfor %}
+                </select><br>
+
+                <label for="presupuesto_id">Presupuesto:</label>
+                <select id="presupuesto_id" name="presupuesto_id" required title="Seleccione un presupuesto">
+                    {% for presupuesto in presupuestos %}
+                        <option value="{{ presupuesto.id }}">{{ presupuesto.nombre }}</option>
+                    {% endfor %}
+                </select><br>
+
+                <button type="submit">Agregar</button>
+            </form>
+        </main>
+    {% endblock %}
+
     <footer>
         <p>&copy; Gestor de Presupuestos 2024. Todos los derechos reservados.</p>
     </footer>

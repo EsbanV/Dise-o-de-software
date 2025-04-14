@@ -3,50 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Gestor de Presupuestos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
-        <div class="perfil">
-            <img src="\static/img/user.jpg" alt="Perfil">
-            <p>Usuario: {{ session['user'] }}</p>
-        </div>
         <h1>Gestor de Presupuestos</h1>
+        <p>Usuario: {{ session['user'] }}</p>
+    </header>
+
+    <main>
         <nav class="inicio">
-            <ul>
-                <li><a href="{{ url_for('ver_articulos') }}">Boletin</a></li>
-                <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
-                <li><a href="{{ url_for('logout') }}">Cerrar Sesión</a></li>
+            <ul class="nav-list">
+                <li><a href="{{ url_for('usuario_bp.dashboard') }}" class="btn">Dashboard</a></li>
+                <li><a href="{{ url_for('usuario_bp.perfil') }}" class="btn">Perfil</a></li>
+                <li><a href="{{ url_for('usuario_bp.logout') }}" class="btn btn-salir">Cerrar Sesión</a></li>
             </ul>
         </nav>
-    </header>
-    <main>
-        <h2>Mis Cuentas</h2>
-        <div class="container-cuentas">
-            <a href="{{ url_for('vincular_banco') }}">Nuevo Banco</a>
-            <ul>
+
+        <section class="seccion">
+            <h2>Mis Cuentas</h2>
+            <a href="{{ url_for('usuario_bp.vincular_banco') }}" class="btn">Vincular Cuenta Bancaria</a>
+            <ul class="lista-cuentas">
                 {% for cuenta in cuentas %}
-                    <li>{{ cuenta[2] }} | <a href="{{ url_for('crear_categoria', cuenta_id=cuenta[0]) }}">Añadir Categoría</a> |
-                                        <a href="{{ url_for('ver_categorias', banco_id=cuenta[0]) }}">ver Categorías</a> | </li>
-                {% endfor %}
-            </ul>
-        </div>
-            <h2>Todas mis Categorias</h2>
-        <div class="container-categorias">
-            <ul>
-                {% for categoria in categorias %}
-                    <li>{{ categoria[2] }} - {{ categoria[1] }} |
-                        <a href="{{ url_for('crear_presupuesto', categoria_id=categoria[0]) }}">Asignar Presupuesto</a> |
-                        <a href="{{ url_for('agregar_transaccion', categoria_id=categoria[0]) }}">Agregar Transacción</a> |
-                        <a href="{{ url_for('ver_presupuesto', categoria_id=categoria[0]) }}">Ver Presupuesto</a> |
+                    <li>
+                        {{ cuenta.nombre }}: ${{ '%.2f'|format(cuenta.saldo) }}
+                        |
+                        <a href="{{ url_for('categoria_rutas.crear_categoria') }}?cuenta_id={{ cuenta.id }}" class="enlace">Añadir Categoría</a>
+                        |
+                        <a href="{{ url_for('categoria_rutas.listar_categorias', cuenta_id=cuenta.id) }}" class="enlace">Ver Categorías</a>
                     </li>
+                {% else %}
+                    <li>No tienes cuentas vinculadas.</li>
                 {% endfor %}
             </ul>
-        </div>
+        </section>
+
+        <section class="seccion">
+            <h2>Todas mis Categorías</h2>
+            <ul class="lista-categorias">
+                {% for categoria in categorias %}
+                    <li>
+                        {{ categoria.nombre }}
+                        |
+                        <a href="{{ url_for('presupuesto_rutas.asignar_presupuesto') }}?categoria_id={{ categoria.id }}" class="enlace">Asignar Presupuesto</a>
+                        |
+                        <a href="{{ url_for('transaccion_rutas.registrar_transaccion') }}?categoria_id={{ categoria.id }}" class="enlace">Agregar Transacción</a>
+                        |
+                        <a href="{{ url_for('presupuesto_rutas.obtener_presupuesto', categoria_id=categoria.id) }}" class="enlace">Ver Presupuesto</a>
+                    </li>
+                {% else %}
+                    <li>No tienes categorías aún.</li>
+                {% endfor %}
+            </ul>
+        </section>
     </main>
+
     <footer>
-        <p>&copy; Gestor de Presupuestos 2024. Todos los derechos reservados.</p>
+        <p>&copy; Gestor de Presupuestos 2024</p>
     </footer>
 </body>
 </html>

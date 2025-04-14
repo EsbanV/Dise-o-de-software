@@ -9,31 +9,36 @@
 <body>
     <header>
         <div class="perfil">
-            <img src="\static/img/user.jpg" alt="Perfil">
+            <img src="{{ url_for('static', filename='img/user.jpg') }}" alt="Perfil">
             <p>Usuario: {{ session['user'] }}</p>
         </div>
-        <h1>Añadir nuevo banco</h1>
+        <h1>Vincular Banco</h1>
+        <nav class="inicio">
+            <ul>
+                <li><a href="{{ url_for('index') }}">Inicio</a></li>
+                <li><a href="{{ url_for('logout') }}">Cerrar Sesión</a></li>
+            </ul>
+        </nav>
     </header>
+
     <main>
-        <form action="{{ url_for('vincular_banco') }}" method="post">
-            <label for="banco">Selecciona un nuevo banco:</label>
-                <select id="banco" name="banco" onchange="escribirotrobanco()" required>
-                    <option value="" disabled selected>Selecciona tu banco.</option>
-                    <option value="Banco de Chile">Banco de Chile</option>
-                    <option value="BCI">BCI</option>
-                    <option value="Banco Estado">Banco Estado</option>
-                    <option value="Santander">Santander</option>
-                    <option value="Itau">Itaú</option>
-                    <option value="Scotiabank">Scotiabank</option>
-                    <option value="Falabella">Banco Falabella</option>
-                    <option value="Ripley">Banco Ripley</option>
-                    <option value="Security">Banco Security</option>
-                    <option value="Otro">otro</option>
-                </select>
-            <button type="submit">Agregar nuevo banco</button>
+        <form action="{{ url_for('guardar_banco') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <label for="nombre_banco">Nombre del Banco:</label>
+            <input type="text" id="nombre_banco" name="nombre_banco" required aria-label="Nombre del Banco">
+
+            <label for="presupuesto_inicial">Presupuesto Inicial:</label>
+            <input type="number" id="presupuesto_inicial" name="presupuesto_inicial" required step="0.01" min="0.01" aria-label="Presupuesto Inicial">
+
+            <button type="submit">Guardar</button>
         </form>
-        <a href="{{ url_for('index') }}">Regresar</a>
+
+        {% if mensaje %}
+            <div class="alerta">{{ mensaje }}</div>
+        {% endif %}
     </main>
+
     <footer>
         <p>&copy; Gestor de Presupuestos 2024. Todos los derechos reservados.</p>
     </footer>

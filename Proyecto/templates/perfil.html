@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Perfil de Usuario</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
         <h1>Mi Perfil</h1>
-        <nav>
-            <ul>
-                <li><a href="{{ url_for('index') }}">Inicio</a></li>
-                <li><a href="{{ url_for('logout') }}">Cerrar Sesión</a></li>
-            </ul>
-        </nav>
+        <p>Usuario: {{ session['user'] }}</p>
     </header>
-    <main>
-        <h2>Información del Perfil</h2>
-        <p><strong>Nombre:</strong> {{ usuario[1] }}</p>
-        <p><strong>Email:</strong> {{ usuario[2] }}</p>
+
+    <main class="perfil-container">
+        <section class="perfil-datos">
+            <p><strong>Nombre:</strong> {{ usuario.nombre }}</p>
+            <p><strong>Correo:</strong> {{ usuario.correo }}</p>
+        </section>
+
+        <div class="acciones">
+            <a href="{{ url_for('usuario_bp.logout') }}" class="btn">Cerrar sesión</a>
+        </div>
     </main>
 </body>
 </html>

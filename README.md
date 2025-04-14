@@ -221,7 +221,6 @@ La interfaz es accesible en dispositivos móviles y de escritorio
 El sistema responde en tiempos aceptables (<3 segundos)
 
 Elementos Fuera del Alcance del MVP
-
 Gráficos y visualizaciones avanzadas
 Importación/exportación de datos
 Notificaciones y alertas

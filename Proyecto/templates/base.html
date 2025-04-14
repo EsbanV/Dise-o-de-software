@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mi App Financiera{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header role="banner">
+        <nav aria-label="Navegación principal">
+            <a href="{{ url_for('index') }}">Inicio</a>
+            {% if session.get('usuario_id') %}
+                <a href="{{ url_for('usuario_bp.logout') }}">Cerrar sesión</a>
+            {% else %}
+                <a href="{{ url_for('usuario_bp.login') }}">Login</a>
+                <a href="{{ url_for('usuario_bp.registrar_usuario') }}">Registro</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <aside role="complementary" aria-label="Menú lateral">
+        {% if session.get('usuario_id') %}
+        <ul>
+            <li><a href="{{ url_for('index') }}">Mis Cuentas</a></li>
+            <li><a href="{{ url_for('categoria_rutas.listar_categorias', cuenta_id=session.get('usuario_id')) }}">Categorías</a></li>
+            <li><a href="{{ url_for('presupuesto_rutas.obtener_presupuesto', categoria_id=0) }}">Presupuestos</a></li>
+            <li><a href="{{ url_for('transaccion_rutas.listar_transacciones', categoria_id=0) }}">Transacciones</a></li>
+            <li><a href="{{ url_for('usuario_bp.logout') }}">Salir</a></li>
+        </ul>
+        {% endif %}
+    </aside>
+
+    <main role="main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer role="contentinfo">
+        <p>&copy; 2024 Mi App Financiera. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
