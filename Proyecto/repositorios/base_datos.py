@@ -1,6 +1,6 @@
 from configuracion.extensiones import db
 
-class ServicioBaseDatos:
+class BaseDatos:
     @staticmethod
     def agregar(instancia):
         try:

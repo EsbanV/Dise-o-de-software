@@ -1,64 +1,73 @@
 import logging
 from modelos.categoria import Categoria
-from servicios.base_datos import ServicioBaseDatos
+from repositorios.categoria_repositorio import CategoriaRepositorio
 
 class CategoriaServicio:
-    
+    _repositorio = CategoriaRepositorio()
+
     @staticmethod
     def crear_categoria(nombre, cuenta_id):
-        nueva_categoria = Categoria(nombre=nombre, cuenta_id=cuenta_id)
+        if not nombre:
+            logging.error("El nombre de la categoría es requerido")
+            raise ValueError("El nombre de la categoría es requerido")
         try:
-            ServicioBaseDatos.agregar(nueva_categoria)
+            nueva_categoria = Categoria(nombre=nombre, cuenta_id=cuenta_id)
+            categoria = CategoriaServicio._repositorio.crear(nueva_categoria)
             logging.info("Categoría creada: %s para cuenta %s", nombre, cuenta_id)
+            return categoria
         except Exception as e:
             logging.error("Error al crear categoría (%s) para cuenta %s: %s", nombre, cuenta_id, e)
             raise e
-        return nueva_categoria
 
     @staticmethod
     def obtener_categorias(cuenta_id):
-        categorias = Categoria.query.filter_by(cuenta_id=cuenta_id).all()
-        logging.info("Obtenidas %d categorías para la cuenta %s", len(categorias), cuenta_id)
-        return categorias
-    
+        try:
+            categorias = CategoriaServicio._repositorio.obtener_por_cuenta(cuenta_id)
+            logging.info("Obtenidas %d categorías para la cuenta %s", len(categorias), cuenta_id)
+            return categorias
+        except Exception as e:
+            logging.error("Error al obtener categorías para cuenta %s: %s", cuenta_id, e)
+            raise e
+
     @staticmethod
     def actualizar_categoria(categoria_id, nombre):
-        categoria = Categoria.query.get(categoria_id)
+        categoria = CategoriaServicio._repositorio.obtener_por_id(categoria_id)
         if categoria:
             old_name = categoria.nombre
             categoria.nombre = nombre
             try:
-                ServicioBaseDatos.actualizar()
+                CategoriaServicio._repositorio.actualizar(categoria)
                 logging.info("Categoría actualizada: ID %s, de '%s' a '%s'", categoria_id, old_name, nombre)
+                return categoria
             except Exception as e:
                 logging.error("Error al actualizar categoría ID %s: %s", categoria_id, e)
                 raise e
         else:
             logging.warning("Categoría no encontrada para actualizar: ID %s", categoria_id)
-        return categoria
+        return None
 
     @staticmethod
     def eliminar_categoria(categoria_id):
-        categoria = Categoria.query.get(categoria_id)
-        if categoria:
-            try:
-                ServicioBaseDatos.eliminar(categoria)
+        try:
+            resultado = CategoriaServicio._repositorio.eliminar(categoria_id)
+            if resultado:
                 logging.info("Categoría eliminada: ID %s", categoria_id)
-                return True
-            except Exception as e:
-                logging.error("Error al eliminar categoría ID %s: %s", categoria_id, e)
-                raise e
-        else:
-            logging.warning("Intento de eliminar categoría inexistente: ID %s", categoria_id)
-        return False
+            else:
+                logging.warning("Intento de eliminar categoría inexistente: ID %s", categoria_id)
+            return resultado
+        except Exception as e:
+            logging.error("Error al eliminar categoría ID %s: %s", categoria_id, e)
+            raise e
 
     @staticmethod
     def obtener_categorias_por_usuario(usuario_id):
-        from modelos.cuenta_bancaria import CuentaBancaria
-        cuentas = CuentaBancaria.query.filter_by(usuario_id=usuario_id).all()
+        # Se asume que el repositorio de cuentas tiene un método para obtener cuentas por usuario
+        from repositorios.cuenta_bancaria_repositorio import CuentaBancariaRepositorio
+        cuenta_repo = CuentaBancariaRepositorio()
+        cuentas = cuenta_repo.obtener_por_usuario(usuario_id)
         categorias = []
         for cuenta in cuentas:
-            categorias_cuenta = Categoria.query.filter_by(cuenta_id=cuenta.id).all()
+            categorias_cuenta = CategoriaServicio.obtener_categorias(cuenta.id)
             categorias.extend(categorias_cuenta)
         logging.info("Obtenidas %d categorías para el usuario %s", len(categorias), usuario_id)
         return categorias
