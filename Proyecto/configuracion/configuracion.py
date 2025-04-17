@@ -1,6 +1,5 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from modelos import *
 from configuracion.extensiones import db
 import os
 

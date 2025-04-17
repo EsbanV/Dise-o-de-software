@@ -1,10 +1,10 @@
 from flask import Flask
 from utilidades.seguridad import generar_token_csrf
-from rutas.cuenta_bancaria_rutas import cuenta_rutas
-from rutas.categoria_rutas import categoria_rutas
-from rutas.presupuesto_rutas import presupuesto_rutas
-from rutas.transaccion_rutas import transaccion_rutas
-from rutas.usuario_rutas import usuario_rutas
+from cuenta_bancaria.rutas import cuenta_bancaria as cuenta_rutas
+from categoria.rutas import categoria as categoria_rutas
+from presupuesto.rutas import presupuesto as presupuesto_rutas
+from transaccion.rutas import transaccion as transaccion_rutas
+from usuario.rutas import usuario as usuario_rutas
 from rutas.index_rutas import index_rutas
 from configuracion.configuracion import crear_app
 from utilidades.logging import init_logging
