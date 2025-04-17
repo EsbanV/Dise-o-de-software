@@ -7,6 +7,9 @@ class CuentaBancaria(db.Model):
     saldo = db.Column(db.Float, default=0)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
     usuario = db.relationship("Usuario", back_populates="cuentas_bancarias")
+    
+    # Añadir esta relación con Categoria
+    categorias = db.relationship('Categoria', backref='cuenta_bancaria', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<CuentaBancaria {self.id}>'

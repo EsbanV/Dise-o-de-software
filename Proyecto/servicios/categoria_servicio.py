@@ -1,24 +1,36 @@
 import logging
 from modelos.categoria import Categoria
+from utilidades.validadores import validar_nombre, validar_id
+from utilidades.excepciones import ErrorNegocio, ErrorTecnico
 from repositorios.categoria_repositorio import CategoriaRepositorio
+from repositorios.cuenta_bancaria_repositorio import CuentaBancariaRepositorio
 
 class CategoriaServicio:
-    _repositorio = CategoriaRepositorio()
+    _cat_repo = CategoriaRepositorio()
+    _cuenta_repo = CuentaBancariaRepositorio()
 
     @staticmethod
-    def crear_categoria(nombre, cuenta_id):
-        if not nombre:
-            logging.error("El nombre de la categoría es requerido")
-            raise ValueError("El nombre de la categoría es requerido")
-        try:
-            nueva_categoria = Categoria(nombre=nombre, cuenta_id=cuenta_id)
-            categoria = CategoriaServicio._repositorio.crear(nueva_categoria)
-            logging.info("Categoría creada: %s para cuenta %s", nombre, cuenta_id)
-            return categoria
-        except Exception as e:
-            logging.error("Error al crear categoría (%s) para cuenta %s: %s", nombre, cuenta_id, e)
-            raise e
+    def crear_categoria(nombre: str, cuenta_id: int):
+        if not validar_nombre(nombre):
+            raise ErrorNegocio("Nombre inválido (3-100 caracteres)")
+        
+        if not validar_id(cuenta_id):
+            raise ErrorNegocio("ID de cuenta inválido")
 
+        try:
+            # Verificar existencia de la cuenta
+            if not CategoriaServicio._cuenta_repo.obtener_por_id(cuenta_id):
+                raise ErrorNegocio("La cuenta no existe")
+
+            # Crear categoría
+            nueva_categoria = Categoria(nombre=nombre.strip(), cuenta_id=cuenta_id)
+            CategoriaServicio._cat_repo.crear(nueva_categoria)
+            return nueva_categoria
+
+        except Exception as e:
+            logging.error(f"Error al crear categoría: {str(e)}")
+            raise ErrorTecnico()
+        
     @staticmethod
     def obtener_categorias(cuenta_id):
         try:

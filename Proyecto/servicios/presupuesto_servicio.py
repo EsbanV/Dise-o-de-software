@@ -1,26 +1,39 @@
 import logging
 from modelos.presupuesto import Presupuesto
 from repositorios.presupuesto_repositorio import PresupuestoRepositorio
+from utilidades.validadores import validar_id, validar_monto
+from utilidades.excepciones import ErrorNegocio, ErrorTecnico
+from decimal import Decimal
 
 class PresupuestoServicio:
-    _repositorio = PresupuestoRepositorio()
-
     @staticmethod
-    def asignar_presupuesto(categoria_id, monto_asignado):
+    def asignar_presupuesto(categoria_id: int, monto_asignado: float):
+        # Validación primaria
+        if not validar_id(categoria_id) or not validar_monto(monto_asignado):
+            raise ErrorNegocio("Datos de presupuesto inválidos.")
+
         try:
-            presupuesto = PresupuestoServicio._repositorio.obtener_por_categoria(categoria_id)
+            # Validación de existencia
+            from servicios.categoria_servicio import CategoriaServicio
+            if not CategoriaServicio.obtener_categoria(categoria_id):
+                raise ErrorNegocio("La categoría no existe.")
+
+            # Precisión decimal
+            monto = Decimal(str(monto_asignado)).quantize(Decimal('0.01'))
+
+            # Lógica de actualización/creación
+            presupuesto = Presupuesto.obtener_por_categoria(categoria_id)
             if presupuesto:
-                presupuesto.monto_asignado = monto_asignado
-                logging.info("Presupuesto actualizado para categoría %s: nuevo monto %s", categoria_id, monto_asignado)
-                presupuesto_actualizado = PresupuestoServicio._repositorio.actualizar(presupuesto)
+                presupuesto.monto_asignado = monto
             else:
-                nuevo_presupuesto = Presupuesto(categoria_id=categoria_id, monto_asignado=monto_asignado)
-                logging.info("Nuevo presupuesto asignado para categoría %s: monto %s", categoria_id, monto_asignado)
-                presupuesto_actualizado = PresupuestoServicio._repositorio.crear(nuevo_presupuesto)
-            return presupuesto_actualizado
+                presupuesto = Presupuesto(categoria_id=categoria_id, monto_asignado=monto)
+            
+            presupuesto.guardar()
+            return presupuesto
+
         except Exception as e:
-            logging.error("Error al asignar presupuesto para categoría %s: %s", categoria_id, e)
-            raise e
+            logging.error(f"Error al guardar presupuesto: {str(e)}")
+            raise ErrorTecnico()
 
     @staticmethod
     def obtener_presupuesto(categoria_id):

@@ -1,34 +1,69 @@
 import logging
 from modelos.cuenta_bancaria import CuentaBancaria
 from repositorios.cuenta_bancaria_repositorio import CuentaBancariaRepositorio
+from servicios.usuario_servicio import UsuarioServicio
+from utilidades.validadores import validar_nombre, validar_monto, validar_id
+from utilidades.validadores import validar_nombre, validar_monto, validar_id
+from utilidades.excepciones import ErrorNegocio, ErrorTecnico
+from decimal import Decimal
+from sqlalchemy.exc import SQLAlchemyError
+from configuracion.extensiones import db
 
 class CuentaBancariaServicio:
     _repositorio = CuentaBancariaRepositorio()
 
-    @staticmethod
-    def crear_cuenta(nombre, saldo_inicial, usuario_id):
-        if not nombre:
-            logging.error("El nombre de la cuenta es requerido.")
-            raise ValueError("El nombre de la cuenta es requerido")
+    @classmethod
+    def crear_cuenta(cls, nombre: str, saldo_inicial: float, usuario_id: int):
         try:
-            nueva_cuenta = CuentaBancaria(nombre=nombre, saldo=saldo_inicial, usuario_id=usuario_id)
-            cuenta = CuentaBancariaServicio._repositorio.crear(nueva_cuenta)
-            logging.info("Cuenta bancaria creada correctamente: %s", cuenta.nombre)
-            return cuenta
-        except Exception as e:
-            logging.error("Error al crear cuenta bancaria para usuario %s: %s", usuario_id, e)
-            raise e
+            # Validaciones
+            if not validar_nombre(nombre):
+                raise ErrorNegocio("Nombre inválido")
+            
+            if not validar_monto(saldo_inicial):
+                raise ErrorNegocio("Saldo inválido")
+                
+            if not validar_id(usuario_id):
+                raise ErrorNegocio("Usuario inválido")
 
-    @staticmethod
-    def obtener_cuentas(usuario_id):
+            # Verificar existencia del usuario
+            if not UsuarioServicio.obtener_usuario_por_id(usuario_id):
+                raise ErrorNegocio("El usuario no existe")
+
+            # Creación
+            cuenta = CuentaBancaria(
+                nombre=nombre.strip(),
+                saldo=Decimal(str(saldo_inicial)).quantize(Decimal('0.01')),
+                usuario_id=usuario_id
+            )
+            
+            # Guardado con manejo explícito de errores SQL
+            try:
+                db.session.add(cuenta)
+                db.session.commit()
+                return cuenta
+            except SQLAlchemyError as e:
+                db.session.rollback()
+                logging.error(f"Error de BD al crear cuenta: {str(e)}")
+                raise ErrorTecnico("Error al guardar en base de datos")
+                
+        except ErrorNegocio:
+            raise  # Re-lanza errores de negocio
+        except Exception as e:
+            logging.critical(f"Error inesperado: {str(e)}", exc_info=True)
+            raise ErrorTecnico()
+    @classmethod
+    def obtener_cuentas(cls, usuario_id: int):
+        """Obtiene todas las cuentas de un usuario"""
         try:
-            # Se asume que el repositorio tiene un método "obtener_por_usuario"
-            cuentas = CuentaBancariaServicio._repositorio.obtener_por_usuario(usuario_id)
-            logging.info("Obtenidas %d cuentas para el usuario %s", len(cuentas), usuario_id)
+            if not usuario_id:
+                raise ValueError("ID de usuario requerido")
+                
+            cuentas = cls._repositorio.obtener_por_usuario(usuario_id)
+            logging.info(f"Obtenidas {len(cuentas)} cuentas para usuario {usuario_id}")
             return cuentas
         except Exception as e:
-            logging.error("Error al obtener cuentas para usuario %s: %s", usuario_id, e)
-            raise e
+            logging.error(f"Error al obtener cuentas: {str(e)}")
+            return []  # Retorna lista vacía en caso de error
 
     @staticmethod
     def obtener_cuenta_por_id(cuenta_id):

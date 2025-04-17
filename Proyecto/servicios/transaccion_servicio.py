@@ -1,6 +1,8 @@
 import logging
-from modelos.transaccion import Transaccion
-from modelos.presupuesto import Presupuesto
+from decimal import Decimal
+from utilidades.validadores import validar_id, validar_monto
+from utilidades.excepciones import ErrorNegocio, ErrorTecnico
+from modelos import Transaccion, Presupuesto
 from repositorios.transaccion_repositorio import TransaccionRepositorio
 from repositorios.presupuesto_repositorio import PresupuestoRepositorio
 
@@ -9,22 +11,35 @@ class TransaccionServicio:
     _presup_repo = PresupuestoRepositorio()
 
     @staticmethod
-    def registrar_transaccion(categoria_id, monto):
-        presupuesto = TransaccionServicio._presup_repo.obtener_por_categoria(categoria_id)
-        if not presupuesto:
-            error_msg = f"No hay un presupuesto asignado para la categoría {categoria_id}"
-            logging.error(error_msg)
-            raise Exception(error_msg)
+    def registrar_transaccion(categoria_id: int, monto: float):
+        # Validación inicial
+        if not all([validar_id(categoria_id), validar_monto(monto)]):
+            raise ErrorNegocio("Datos de transacción inválidos")
+
         try:
-            nueva_transaccion = Transaccion(categoria_id=categoria_id, monto=monto)
+            # Verificar presupuesto existente
+            presupuesto = TransaccionServicio._presup_repo.obtener_por_categoria(categoria_id)
+            if not presupuesto:
+                raise ErrorNegocio("No existe presupuesto para esta categoría")
+
+            # Crear transacción
+            nueva_transaccion = Transaccion(
+                categoria_id=categoria_id,
+                monto=Decimal(str(monto)).quantize(Decimal('0.01'))
+            )
             TransaccionServicio._trans_repo.crear(nueva_transaccion)
-            presupuesto.monto_gastado += monto
+
+            # Actualizar presupuesto
+            presupuesto.monto_gastado += Decimal(str(monto))
             TransaccionServicio._presup_repo.actualizar(presupuesto)
-            logging.info("Transacción registrada para categoría %s: monto %s", categoria_id, monto)
+
             return nueva_transaccion
+
+        except ErrorNegocio:
+            raise  # Re-lanza errores conocidos
         except Exception as e:
-            logging.error("Error al registrar transacción para categoría %s: %s", categoria_id, e)
-            raise e
+            logging.error(f"Error técnico: {str(e)}", exc_info=True)
+            raise ErrorTecnico()
 
     @staticmethod
     def obtener_transacciones(categoria_id):
