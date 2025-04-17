@@ -1,4 +1,4 @@
-from servicios.base_datos import db
+from configuracion.extensiones import db
 
 class CuentaBancaria(db.Model):
     __tablename__ = 'cuentas_bancarias'
@@ -6,3 +6,7 @@ class CuentaBancaria(db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     saldo = db.Column(db.Float, default=0)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    usuario = db.relationship("Usuario", back_populates="cuentas_bancarias")
+
+    def __repr__(self):
+        return f'<CuentaBancaria {self.id}>'

@@ -1,4 +1,4 @@
-from configuracion import db
+from configuracion.extensiones import db
 from sqlalchemy.orm import relationship
 
 class Usuario(db.Model):
@@ -8,3 +8,6 @@ class Usuario(db.Model):
     correo = db.Column(db.String(100), unique=True, nullable=False)
     contrasena = db.Column(db.String(255), nullable=False)
     cuentas_bancarias = relationship("CuentaBancaria", back_populates="usuario")
+
+    def __repr__(self):
+        return f'<Usuario {self.id} - {self.nombre}>'

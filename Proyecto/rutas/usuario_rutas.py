@@ -1,15 +1,11 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
+from servicios.autenticacion import ServicioAutenticacion
 from servicios.usuario_servicio import UsuarioServicio
 
-usuario_bp = Blueprint('usuario_bp', __name__, template_folder='../plantillas', static_folder='../estaticos')
+usuario_rutas = Blueprint('usuario_rutas', __name__, template_folder='../templates')
 
-@usuario_bp.route('/registro', methods=['GET', 'POST'])
+@usuario_rutas.route('/registro', methods=['GET', 'POST'])
 def registrar_usuario():
-    """
-    Ruta para registrar nuevos usuarios.
-    En GET: Muestra el formulario de registro.
-    En POST: Procesa los datos enviados y registra al usuario.
-    """
     if request.method == 'POST':
         nombre = request.form.get('nombre')
         correo = request.form.get('correo')
@@ -20,36 +16,34 @@ def registrar_usuario():
             return render_template('registro.html')
         
         try:
-            UsuarioServicio.registrar_usuario(nombre, correo, password)
+            ServicioAutenticacion.registrar_usuario(nombre, correo, password)
             flash('Usuario registrado exitosamente.', 'success')
-            return redirect(url_for('usuario_bp.login'))
+            return redirect(url_for('usuario_rutas.login'))
         except Exception as e:
+            current_app.logger.error("Error al registrar usuario: %s", e)
             flash(f'Error al registrar el usuario: {str(e)}', 'danger')
     
     return render_template('registro.html')
 
-
-@usuario_bp.route('/login', methods=['GET', 'POST'])
+@usuario_rutas.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         correo = request.form.get('correo')
         password = request.form.get('password')
         
-        usuario = UsuarioServicio.autenticar_usuario(correo, password)
+        usuario = ServicioAutenticacion.autenticar_usuario(correo, password)
         if usuario:
             session['usuario_id'] = usuario.id
+            session['logged_in'] = True
             flash('Inicio de sesión exitoso.', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('index_rutas.home'))
         else:
             flash('Credenciales inválidas. Intenta nuevamente.', 'danger')
     
     return render_template('login.html')
 
-@usuario_bp.route('/logout')
+@usuario_rutas.route('/logout')
 def logout():
-    """
-    Ruta para cerrar sesión.
-    """
     session.pop('usuario_id', None)
     flash('Has cerrado sesión exitosamente.', 'success')
-    return redirect(url_for('usuario_bp.login'))
+    return redirect(url_for('usuario_rutas.login'))

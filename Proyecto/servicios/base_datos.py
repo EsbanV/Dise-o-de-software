@@ -1,4 +1,4 @@
-from Proyecto.configuracion.configuracion import db
+from configuracion.extensiones import db
 
 class ServicioBaseDatos:
     @staticmethod

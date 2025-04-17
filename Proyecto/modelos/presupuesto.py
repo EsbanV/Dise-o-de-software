@@ -1,4 +1,4 @@
-from servicios.base_datos import db
+from configuracion.extensiones import db
 
 class Presupuesto(db.Model):
     __tablename__ = 'presupuestos'
@@ -6,3 +6,6 @@ class Presupuesto(db.Model):
     monto_asignado = db.Column(db.Float, nullable=False)
     monto_gastado = db.Column(db.Float, default=0)
     categoria_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=False)
+
+    def __repr__(self):
+        return f'<Presupuesto {self.id}>'
