@@ -12,9 +12,5 @@ def home():
     usuario_id = session.get('usuario_id') 
     if not usuario_id:
         return render_template('login.html')
-    usuario = UsuarioServicio.obtener_usuario_por_id(usuario_id)
-    cuentas_bancarias = CuentaBancariaServicio.obtener_cuentas(usuario_id)
-    categorias = CategoriaServicio.obtener_categorias(usuario_id)
-    transacciones = TransaccionServicio.obtener_transacciones(usuario_id)
-    presupuestos = PresupuestoServicio.obtener_presupuesto(usuario_id)
-    return render_template('index.html', usuario=usuario, cuentas_bancarias=cuentas_bancarias)
+    usuario = UsuarioServicio.datos_usuario(usuario_id)
+    return render_template('index.html', usuario=usuario)

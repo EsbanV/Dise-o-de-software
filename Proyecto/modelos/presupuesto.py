@@ -7,5 +7,7 @@ class Presupuesto(db.Model):
     monto_gastado = db.Column(db.Float, default=0)
     categoria_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=False)
 
+    categoria = db.relationship("Categoria", back_populates="presupuesto")
+
     def __repr__(self):
         return f'<Presupuesto {self.id}>'

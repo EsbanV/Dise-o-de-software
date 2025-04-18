@@ -17,13 +17,13 @@ class CategoriaServicio:
 
     @staticmethod
     def obtener_categorias(cuenta_id):
-        categorias = Categoria.query.filter_by(cuenta_id=cuenta_id).all()
+        categorias = ServicioBaseDatos.obtener_con_filtro(Categoria, [Categoria.cuenta_id == cuenta_id])
         logging.info("Obtenidas %d categorías para la cuenta %s", len(categorias), cuenta_id)
         return categorias
     
     @staticmethod
     def actualizar_categoria(categoria_id, nombre):
-        categoria = Categoria.query.get(categoria_id)
+        categoria = ServicioBaseDatos.obtener_por_id(Categoria, categoria_id)
         if categoria:
             old_name = categoria.nombre
             categoria.nombre = nombre
@@ -39,7 +39,7 @@ class CategoriaServicio:
 
     @staticmethod
     def eliminar_categoria(categoria_id):
-        categoria = Categoria.query.get(categoria_id)
+        categoria = ServicioBaseDatos.obtener_por_id(Categoria, categoria_id)
         if categoria:
             try:
                 ServicioBaseDatos.eliminar(categoria)
@@ -55,10 +55,10 @@ class CategoriaServicio:
     @staticmethod
     def obtener_categorias_por_usuario(usuario_id):
         from modelos.cuenta_bancaria import CuentaBancaria
-        cuentas = CuentaBancaria.query.filter_by(usuario_id=usuario_id).all()
+        cuentas = ServicioBaseDatos.obtener_con_filtro(CuentaBancaria, [CuentaBancaria.usuario_id == usuario_id])
         categorias = []
         for cuenta in cuentas:
-            categorias_cuenta = Categoria.query.filter_by(cuenta_id=cuenta.id).all()
+            categorias_cuenta = ServicioBaseDatos.obtener_con_filtro(Categoria, [Categoria.cuenta_id == cuenta.id])
             categorias.extend(categorias_cuenta)
         logging.info("Obtenidas %d categorías para el usuario %s", len(categorias), usuario_id)
         return categorias

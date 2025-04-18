@@ -34,3 +34,12 @@ class ServicioBaseDatos:
     @staticmethod
     def obtener_por_id(modelo, id_):
         return modelo.query.get(id_)
+    
+    @staticmethod
+    def obtener_con_filtro(modelo, condiciones=[]):
+        return modelo.query.filter(*condiciones).all()
+    
+    @staticmethod
+    def obtener_unico_con_filtro(modelo, condiciones=[]):
+        return modelo.query.filter(*condiciones).first()
+
