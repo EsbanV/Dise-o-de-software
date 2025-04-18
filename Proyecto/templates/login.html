@@ -1,58 +1,41 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Página de Inicio de Sesión</title>
-  <!-- Fuente opcional (Google Fonts) -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
-  <!-- Enlace a tu CSS externo (por ejemplo, style.css) -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <!-- Sección de navegación -->
-  <nav class="navbar">
-    <div class="logo">Mi Aplicación</div>
-    <ul class="nav-links">
-      <li><a href="#home">Inicio</a></li>
-      <li><a href="#about">Acerca de</a></li>
-      <li><a href="#services">Servicios</a></li>
-      <li><a href="#contact">Contacto</a></li>
-      <li><a href="{{ url_for('usuario_rutas.registrar_usuario') }}" class="btn-register">Registrarse</a></li>
-    </ul>
-  </nav>
+    <header>
+        <h1>Iniciar Sesión</h1>
+    </header>
 
-  <!-- Contenedor principal -->
-  <div class="hero-bg">
-    <div class="form-container">
-      <h2>Login</h2>
-      <form action="{{ url_for('usuario_rutas.login') }}" method="post">
-        <label for="email">Email</label>
-        <div class="input-field">
-          <input type="email" id="email" name="correo" required />
+    <main class="form-container">
+        {% with mensajes = get_flashed_messages(with_categories=true) %}
+            {% if mensajes %}
+                <ul class="flashes">
+                    {% for categoria, msg in mensajes %}
+                        <li class="{{ categoria }}">{{ msg }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('usuario_bp.login') }}" method="post" class="formulario">
+            <label for="correo">Correo:</label>
+            <input type="email" id="correo" name="correo" required>
+
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit" class="btn">Ingresar</button>
+        </form>
+
+        <div class="acciones">
+            <p>¿No tienes cuenta? <a href="{{ url_for('usuario_bp.registrar_usuario') }}">Regístrate aquí</a></p>
+            <p>¿Olvidaste tu contraseña? <a href="{{ url_for('usuario_bp.recuperar_password') }}">Recupérala</a></p>
         </div>
-
-        <label for="password">Contraseña</label>
-        <div class="input-field">
-          <input type="password" id="password" name="password" required />
-        </div>
-
-        <div class="form-options">
-          <label>
-            <input type="checkbox" name="remember" />
-            Recordarme
-          </label>
-          <a href="#">¿Olvidaste tu contraseña?</a>
-        </div>
-
-        <button type="submit" class="btn-login">Iniciar Sesión</button>
-
-        <p class="switch-page">
-          ¿No tienes cuenta? <a href="{{ url_for('usuario_rutas.registrar_usuario') }}">Regístrate aquí</a>
-        </p>
-      </form>
-    </div>
-  </div>
+    </main>
 </body>
 </html>
