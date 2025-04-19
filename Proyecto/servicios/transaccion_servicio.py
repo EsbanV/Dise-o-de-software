@@ -1,25 +1,34 @@
 import logging
 from modelos.transaccion import Transaccion
 from modelos.presupuesto import Presupuesto
+from modelos.cuenta_bancaria import CuentaBancaria
 from servicios.base_datos import ServicioBaseDatos
 
 class TransaccionServicio:
     @staticmethod
-    def registrar_transaccion(cuenta_id, categoria_id, monto):
-        presupuesto = ServicioBaseDatos.obtener_unico_con_filtro(Presupuesto, [Presupuesto.categoria_id == categoria_id])
-        if not presupuesto:
-            error_msg = f"No hay un presupuesto asignado para la categoría {categoria_id}"
-            logging.error(error_msg)
-            raise Exception(error_msg)
-        transaccion = Transaccion(cuenta_id, categoria_id=categoria_id, monto=monto)
+    def registrar_transaccion(cuenta_id, categoria_id, descripcion, monto):
+        if not descripcion:
+            descripcion = ""
+
+        transaccion = transaccion = Transaccion(cuenta_bancaria_id=cuenta_id, categoria_id=categoria_id, descripcion=descripcion, monto=monto)
         try:
             ServicioBaseDatos.agregar(transaccion)
-            presupuesto.monto_gastado += monto
-            ServicioBaseDatos.actualizar(presupuesto)
             logging.info("Transacción registrada para categoría %s: monto %s", categoria_id, monto)
         except Exception as e:
             logging.error("Error al registrar transacción para categoría %s: %s", categoria_id, e)
             raise e
+        
+        cuenta = ServicioBaseDatos.obtener_por_id(CuentaBancaria, cuenta_id)
+        cuenta.saldo += monto
+        ServicioBaseDatos.actualizar(cuenta)
+        logging.info("Saldo de cuenta actualizado: ID %s, nuevo saldo %s", cuenta_id, cuenta.saldo)
+        
+        presupuesto = ServicioBaseDatos.obtener_unico_con_filtro(Presupuesto, [Presupuesto.categoria_id == categoria_id])
+        if presupuesto:
+            presupuesto.monto_gastado += monto
+            ServicioBaseDatos.actualizar(presupuesto)
+        else:
+            logging.warning("No se encontró presupuesto para la categoría %s", categoria_id)
         return transaccion
 
     @staticmethod

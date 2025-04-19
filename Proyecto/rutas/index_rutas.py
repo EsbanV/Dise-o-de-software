@@ -12,5 +12,11 @@ def home():
     usuario_id = session.get('usuario_id') 
     if not usuario_id:
         return render_template('login.html')
-    usuario = UsuarioServicio.datos_usuario(usuario_id)
+
+    try:
+        usuario = UsuarioServicio.datos_usuario(usuario_id)
+    except ValueError:
+        session.pop('usuario_id', None)
+        flash("La sesión ha expirado. Por favor, inicia sesión nuevamente.", "warning")
+        return redirect(url_for('usuario_rutas.login'))
     return render_template('index.html', usuario=usuario)

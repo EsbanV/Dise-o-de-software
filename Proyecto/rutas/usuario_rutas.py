@@ -30,15 +30,20 @@ def login():
         correo = request.form.get('correo')
         password = request.form.get('password')
         
-        usuario = UsuarioServicio.iniciar_sesion(correo, password)
-        if usuario:
-            session['usuario_id'] = usuario.id
-            session['nombre'] = usuario.nombre
-            session['logged_in'] = True
-            flash('Inicio de sesión exitoso.', 'success')
-            return redirect(url_for('index_rutas.home'))
-        else:
-            flash('Credenciales inválidas. Intenta nuevamente.', 'danger')
+        try:
+            usuario = UsuarioServicio.iniciar_sesion(correo, password)
+        
+            if usuario:
+                session['usuario_id'] = usuario.id
+                session['nombre'] = usuario.nombre
+                session['logged_in'] = True
+                flash('Inicio de sesión exitoso.', 'success')
+                return redirect(url_for('index_rutas.home'))
+            else:
+                flash('Credenciales inválidas. Intenta nuevamente.', 'danger')
+        except Exception as e:
+            current_app.logger.error("Error al iniciar sesión: %s", e)
+            flash(f'Error al iniciar sesión: {str(e)}', 'danger')
     
     return render_template('login.html')
 

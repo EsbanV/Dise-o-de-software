@@ -11,10 +11,10 @@ from utilidades.logging import init_logging
 
 def create_app():
     app = crear_app()
-    app.register_blueprint(cuenta_rutas, url_prefix='/api')
+    app.register_blueprint(cuenta_rutas, url_prefix='/cuentas')
     app.register_blueprint(categoria_rutas, url_prefix='/api')
     app.register_blueprint(presupuesto_rutas, url_prefix='/api')
-    app.register_blueprint(transaccion_rutas, url_prefix='/api')
+    app.register_blueprint(transaccion_rutas, url_prefix='/transacciones')
     app.register_blueprint(usuario_rutas, url_prefix='/api')
     app.register_blueprint(index_rutas)
 

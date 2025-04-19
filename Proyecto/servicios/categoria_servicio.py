@@ -5,20 +5,23 @@ from servicios.base_datos import ServicioBaseDatos
 class CategoriaServicio:
     
     @staticmethod
-    def crear_categoria(nombre, cuenta_id):
-        nueva_categoria = Categoria(nombre=nombre, cuenta_id=cuenta_id)
+    def crear_categoria(nombre, tipo, cuenta_id):
+        nueva_categoria = Categoria(nombre=nombre, tipo=tipo, cuenta_id=cuenta_id)
         try:
             ServicioBaseDatos.agregar(nueva_categoria)
-            logging.info("Categoría creada: %s para cuenta %s", nombre, cuenta_id)
+            logging.info("Categoría creada: %s para cuenta %s", nombre, tipo, cuenta_id)
         except Exception as e:
-            logging.error("Error al crear categoría (%s) para cuenta %s: %s", nombre, cuenta_id, e)
+            logging.error("Error al crear categoría (%s) para cuenta %s: %s", nombre, tipo, cuenta_id, e)
             raise e
         return nueva_categoria
 
     @staticmethod
     def obtener_categorias(cuenta_id):
         categorias = ServicioBaseDatos.obtener_con_filtro(Categoria, [Categoria.cuenta_id == cuenta_id])
-        logging.info("Obtenidas %d categorías para la cuenta %s", len(categorias), cuenta_id)
+        if categorias:
+            logging.info("Obtenidas %d categorías para la cuenta %s", len(categorias), cuenta_id)
+        else:
+            return []
         return categorias
     
     @staticmethod
@@ -62,3 +65,12 @@ class CategoriaServicio:
             categorias.extend(categorias_cuenta)
         logging.info("Obtenidas %d categorías para el usuario %s", len(categorias), usuario_id)
         return categorias
+    
+    @staticmethod
+    def obtener_categoria_por_id(categoria_id):
+        categoria = ServicioBaseDatos.obtener_por_id(Categoria, categoria_id)
+        if categoria:
+            logging.info("Categoría encontrada: ID %s, Nombre %s", categoria_id, categoria.nombre)
+        else:
+            logging.warning("Categoría no encontrada: ID %s", categoria_id)
+        return categoria

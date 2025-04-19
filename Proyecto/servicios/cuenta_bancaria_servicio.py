@@ -1,13 +1,24 @@
 import logging
 from modelos.cuenta_bancaria import CuentaBancaria
+from servicios.categoria_servicio import CategoriaServicio
 from servicios.base_datos import ServicioBaseDatos
 
 class CuentaBancariaServicio:
     @staticmethod
     def crear_cuenta(nombre, saldo_inicial, usuario_id):
         nueva_cuenta = CuentaBancaria(nombre=nombre, saldo=saldo_inicial, usuario_id=usuario_id)
+        categorias_gasto = ["Alimentación", "Transporte", "Entretenimiento", "Salud"]
+        categorias_ingreso = ["Salario", "Inversiones"]
         try:
             ServicioBaseDatos.agregar(nueva_cuenta)
+            for i in categorias_gasto:
+                categoria = CategoriaServicio.crear_categoria(i, "GASTO", nueva_cuenta.id)
+                ServicioBaseDatos.agregar(categoria)
+
+            for i in categorias_ingreso:
+                categoria = CategoriaServicio.crear_categoria(i, "INGRESO", nueva_cuenta.id)
+                ServicioBaseDatos.agregar(categoria)
+
             logging.info("Cuenta bancaria creada correctamente: %s", nueva_cuenta.nombre)
         except Exception as e:
             logging.error("Error al crear cuenta bancaria para usuario %s: %s", usuario_id, e)

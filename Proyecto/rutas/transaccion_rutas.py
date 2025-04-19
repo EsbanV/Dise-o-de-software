@@ -1,52 +1,45 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, session
 from servicios.transaccion_servicio import TransaccionServicio
+from servicios.cuenta_bancaria_servicio import CuentaBancariaServicio
+from servicios.categoria_servicio import CategoriaServicio
+from modelos.categoria import TipoCategoria 
 
 transaccion_rutas = Blueprint('transaccion_rutas', __name__)
 
-@transaccion_rutas.route('/transacciones_vista', methods=['GET', 'POST'])
-def gestionar_transacciones():
-    categoria_id = request.args.get('categoria_id', type=int)
-    if not categoria_id:
-        flash('Debe seleccionar una categoría para ver las transacciones.', 'warning')
-        return redirect(url_for('index_rutas.home'))
-    
-    if request.method == 'POST':
-        monto = request.form.get('monto')
-        try:
-            monto = float(monto)
-            TransaccionServicio.registrar_transaccion(categoria_id, monto)
-            flash('Transacción registrada.', 'success')
-        except Exception as e:
-            flash(f'Error: {str(e)}', 'danger')
-        return redirect(url_for('transaccion_rutas.gestionar_transacciones', categoria_id=categoria_id))
-    
-    transacciones = TransaccionServicio.obtener_transacciones(categoria_id)
-    return render_template('transacciones.html', categoria_id=categoria_id, transacciones=transacciones)
+@transaccion_rutas.route('/transacciones', methods=['GET', 'POST'])
+def registrar_transaccion():
+    usuario_id = session.get('usuario_id')
+    if not usuario_id:
+        flash('Necesitas iniciar sesión para registrar transacciones.', 'warning')
+        return redirect(url_for('usuario_rutas.login'))
 
-@transaccion_rutas.route('/transacciones/actualizar/<int:transaccion_id>', methods=['GET', 'POST'])
-def actualizar_transaccion_vista(transaccion_id):
-    from modelos.transaccion import Transaccion
-    transaccion = Transaccion.query.get(transaccion_id)
-    if not transaccion:
-        flash('Transacción no encontrada.', 'danger')
-        return redirect(url_for('index_rutas.home'))
-    if request.method == 'POST':
-        try:
-            nuevo_monto = float(request.form.get('monto'))
-            TransaccionServicio.actualizar_transaccion(transaccion_id, nuevo_monto)
-            flash('Transacción actualizada.', 'success')
-        except Exception as e:
-            flash(f'Error: {str(e)}', 'danger')
-        return redirect(url_for('transaccion_rutas.gestionar_transacciones', categoria_id=transaccion.categoria_id))
-    return render_template('transaccion_actualizar.html', transaccion=transaccion)
+    cuentas = CuentaBancariaServicio.obtener_cuentas(usuario_id)
 
-@transaccion_rutas.route('/transacciones/eliminar/<int:transaccion_id>', methods=['POST'])
-def eliminar_transaccion_vista(transaccion_id):
-    transaccion = TransaccionServicio.eliminar_transaccion(transaccion_id)
-    if transaccion:
-        flash('Transacción eliminada.', 'success')
-    else:
-        flash('Transacción no encontrada.', 'danger')
-    # Redirigimos a la vista de transacciones para la misma categoría
-    categoria_id = transaccion.categoria_id if transaccion else 0
-    return redirect(url_for('transaccion_rutas.gestionar_transacciones', categoria_id=categoria_id))
+    cuenta_id = request.args.get('cuenta_id', type=int)
+    categorias = []
+
+    if cuenta_id:
+        categorias = CategoriaServicio.obtener_categorias(cuenta_id)
+
+    if request.method == 'POST':
+        cuenta_id = int(request.form.get('cuenta_id'))
+        categoria_id = int(request.form.get('categoria_id'))
+        descripcion = request.form.get('descripcion')
+        monto = float(request.form.get('monto'))
+
+        categoria = CategoriaServicio.obtener_categoria_por_id(categoria_id)
+
+        if categoria.tipo == TipoCategoria.GASTO:
+            monto = -abs(monto)
+        else:
+            monto = abs(monto)
+
+        try:
+            TransaccionServicio.registrar_transaccion(cuenta_id, categoria_id, descripcion, monto)
+            flash('Transacción registrada correctamente.', 'success')
+        except Exception as e:
+            flash(f'Error al registrar la transacción: {str(e)}', 'danger')
+
+        return redirect(url_for('transaccion_rutas.registrar_transaccion', cuenta_id=cuenta_id))
+
+    return render_template('transaccion.html', cuentas=cuentas, categorias=categorias, cuenta_id=cuenta_id)
