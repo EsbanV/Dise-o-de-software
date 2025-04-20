@@ -5,11 +5,11 @@ class CuentaBancaria(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
     saldo = db.Column(db.Float, default=0)
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    usuario_id = db.Column(db.Integer,db.ForeignKey('usuarios.id', ondelete='CASCADE'),nullable=False)
     
-    usuario = db.relationship("Usuario", back_populates="cuentas_bancarias")
-    categorias = db.relationship("Categoria", back_populates="cuenta_bancaria")
-    transacciones = db.relationship("Transaccion", back_populates="cuenta_bancaria")
+    usuario = db.relationship("Usuario", back_populates="cuentas_bancarias", passive_deletes=True)
+    categorias = db.relationship("Categoria", back_populates="cuenta_bancaria", passive_deletes=True)
+    transacciones = db.relationship("Transaccion", back_populates="cuenta_bancaria", passive_deletes=True)
 
     def __repr__(self):
         return f'<CuentaBancaria {self.id}>'

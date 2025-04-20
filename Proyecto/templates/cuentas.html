@@ -1,59 +1,200 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Cuentas Bancarias</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Categorías</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
 <body>
-    <header>
-        <h1>Mis Cuentas Bancarias</h1>
-    </header>
-    <main>
-        <h2>Crear nueva cuenta</h2>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <div class="logo">MÍAPP</div>
+      <nav class="menu">
+        <a href="{{ url_for('index_rutas.home') }}"><i class="fas fa-home"></i> Inicio</a>
+        <a href="{{ url_for('transaccion_rutas.registrar_transaccion') }}"><i class="fas fa-exchange-alt"></i> Transaccion</a>
+        <a href="{{ url_for('usuario_rutas.logout') }}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="dashboard-header">
+        <h2>Cuentas Bancarias</h2>
+        <div class="header-actions">
+          <button class="add-customer-btn" onclick="toggleForm('new-account-form')">
+            <i class="fas fa-plus"></i> Nueva Tarjeta
+          </button>
+          <button class="add-customer-btn" onclick="toggleForm('new-category-form')">
+            <i class="fas fa-plus"></i> Nueva Categoría
+          </button>
+        </div>
+      </header>
+
+      <div id="new-account-form" class="card" style="margin-bottom: 2rem; display: none;">
+        <h3 style="margin-bottom: 1rem; color: #9efff7;">Añadir nueva tarjeta</h3>
         <form method="post" action="{{ url_for('cuenta_rutas.gestionar_cuentas') }}">
-            <label for="nombre">Nombre de la cuenta:</label>
-            <input type="text" name="nombre" required>
-            <label for="saldo_inicial">Saldo inicial:</label>
-            <input type="number" name="saldo_inicial" value="0" step="0.01" required>
-            <button type="submit">Crear cuenta</button>
+          <div class="form-group">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" required />
+          </div>
+          <div class="form-group">
+            <label for="saldo_inicial">saldo:</label>
+            <input type="number" id="saldo_inicial" name="saldo_inicial" required />
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">
+              <i class="fas fa-save"></i> Guardar
+            </button>
+          </div>
         </form>
-        <form action="" method="get" onsubmit="return redirigirACuentaSeleccionada();">
-            <label for="cuenta">Selecciona una cuenta bancaria:</label>
-            <select name="cuenta_id" id="cuenta">
+      </div>
+
+      <div id="new-category-form" class="card" style="margin-bottom: 2rem; display: none;">
+        <h3 style="margin-bottom: 1rem; color: #9efff7;">Añadir nueva categoría</h3>
+        <form method="post" action="{{ url_for('categoria_rutas.crear_categoria_vista') }}">
+
+          <div class="form-group">
+            <label for="cuenta_id">Cuenta Bancaria:</label>
+            <select name="cuenta_id" id="cuenta_id" required>
               {% for cuenta in cuentas %}
                 <option value="{{ cuenta.id }}">{{ cuenta.nombre }}</option>
               {% endfor %}
             </select>
-            <button type="submit">Ver cuenta</button>
-          </form>
+          </div>
 
-          {% if cuenta %}
-          <h2>Categorías de {{ cuenta.nombre }} (saldo: {{ cuenta.saldo }})</h2>
-          <ul>
-            {% for cat in categorias %}
-              <li>{{ cat.nombre }} - {{ cat.tipo }}</li>
+          <div class="form-group">
+            <label for="nombre_categoria">Nombre:</label>
+            <input type="text" id="nombre_categoria" name="nombre" required />
+          </div>
+      
+          <div class="form-group">
+            <label for="tipo_categoria">Tipo:</label>
+            <select name="tipo" id="tipo_categoria" onchange="mostrarPresupuesto()" required>
+              <option value="GASTO">Gasto</option>
+              <option value="INGRESO">Ingreso</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="presupuesto-group" style="display: none;">
+            <label for="presupuesto">Presupuesto (₡):</label>
+            <input type="number" id="presupuesto" name="presupuesto" step="0.01" />
+          </div>          
+      
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">
+              <i class="fas fa-save"></i> Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+      
+
+      <div class="card" style="margin-bottom: 2rem;">
+        <h3 style="margin-bottom: 1rem;">Filtrar Categorías</h3>
+        <form method="get" action="{{ url_for('categoria_rutas.gestionar_categorias') }}" class="search-filter">
+          <div class="form-group" style="flex: 1;">
+            <label for="filtro-cuenta">Cuenta Bancaria:</label>
+            <select id="filtro-cuenta" name="cuenta_id">
+              <option value="">Todas</option>
+              {% for cuenta in cuentas %}
+              <option value="{{ cuenta.id }}" {% if cuenta.id == cuenta_id %}selected{% endif %}>{{ cuenta.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label for="filtro-tipo">Tipo de Categoría:</label>
+            <select id="filtro-tipo" name="tipo">
+              <option value="">Todos</option>
+              <option value="INGRESO" {% if tipo == 'INGRESO' %}selected{% endif %}>Ingreso</option>
+              <option value="GASTO" {% if tipo == 'GASTO' %}selected{% endif %}>Gasto</option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary"><i class="fas fa-filter"></i> Filtrar</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="orders-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Tipo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for categoria in categorias %}
+            <tr data-id="{{ categoria.id }}">
+              <td>
+                <form method="post" action="{{ url_for('categoria_rutas.actualizar_categoria_vista', categoria_id=categoria.id) }}" style="display: inline;">
+                  <span class="nombre-text">{{ categoria.nombre }}</span>
+                  <input type="text" name="nombre" class="nombre-input" value="{{ categoria.nombre }}" style="display: none;" required>
+                  <button type="button" class="btn-edit" onclick="habilitarEdicion(this)"><i class="fas fa-edit"></i></button>
+                  <button type="button" class="btn-cancel" onclick="cancelarEdicion(this)" style="display: none;"><i class="fas fa-times"></i></button>
+                  <button type="submit" class="btn-save" style="display: none;"><i class="fas fa-check"></i></button>
+                </form>
+              </td>
+              <td>{{ categoria.tipo.value }}</td>
+              <td>
+                <form method="post" action="{{ url_for('categoria_rutas.eliminar_categoria_vista', categoria_id=categoria.id) }}" style="display: inline;">
+                  <button type="submit" class="btn-delete" onclick="return confirm('¿Estás seguro de eliminar esta categoría?')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="3" style="text-align: center;">No hay categorías para mostrar</td></tr>
             {% endfor %}
-          </ul>
-        {% else %}
-          <p>Selecciona una cuenta para ver sus categorías.</p>
-        {% endif %}
-            </ul>
+          </tbody>          
+        </table>
+      </div>
 
-            <script>
-                function redirigirACuentaSeleccionada() {
-                  const cuentaId = document.getElementById('cuenta').value;
-                  if (cuentaId) {
-                    window.location.href = `/cuentas/obtener/${cuentaId}`;
-                  }
-                  return false;
-                }
-              </script>
+  <script>
+    
+  function toggleForm(formId) {
+    const allForms = document.querySelectorAll('.card[id$="-form"]');
+    allForms.forEach(f => f.style.display = 'none');
 
-    </main>
-    <footer>
-        <p>&copy; Gestor de Presupuestos 2024. Todos los derechos reservados.</p>
-    </footer>
+    const selectedForm = document.getElementById(formId);
+    if (selectedForm) {
+      selectedForm.style.display = 'block';
+    }
+  }
+
+
+    function habilitarEdicion(button) {
+  const row = button.closest('tr');
+  row.querySelector('.nombre-text').style.display = 'none';
+  row.querySelector('.nombre-input').style.display = 'inline';
+  button.style.display = 'none';
+  row.querySelector('.btn-save').style.display = 'inline-block';
+  row.querySelector('.btn-cancel').style.display = 'inline-block';
+}
+
+function cancelarEdicion(button) {
+  const row = button.closest('tr');
+  row.querySelector('.nombre-text').style.display = 'inline';
+  row.querySelector('.nombre-input').style.display = 'none';
+  row.querySelector('.btn-edit').style.display = 'inline-block';
+  row.querySelector('.btn-save').style.display = 'none';
+  row.querySelector('.btn-cancel').style.display = 'none';
+}
+
+function mostrarPresupuesto() {
+    const tipo = document.getElementById("tipo_categoria").value;
+    const presupuestoGroup = document.getElementById("presupuesto-group");
+
+    if (tipo === "GASTO") {
+      presupuestoGroup.style.display = "block";
+    } else {
+      presupuestoGroup.style.display = "none";
+      document.getElementById("presupuesto").value = ""; // Limpia si es ingreso
+    }
+  }
+  </script>
 </body>
 </html>

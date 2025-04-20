@@ -12,13 +12,9 @@
     <aside class="sidebar">
       <div class="logo">MÍAPP</div>
       <nav class="menu">
-        <a href="{{ url_for('index_rutas.home') }}"><i class="fas fa-home"></i> Inicio</a>
-        <a href="{{ url_for('cuenta_rutas.gestionar_cuentas') }}"><i class="fas fa-chart-pie"></i> Resumen</a>
-        <a href="{{ url_for('transaccion_rutas.registrar_transaccion') }}"><i class="fas fa-exchange-alt"></i> Transacciones</a>
-        <a href="#"><i class="fas fa-wallet"></i> Presupuestos</a>
-        <a href="#"><i class="fas fa-tags"></i> Categorías</a>
-        <a href="#"><i class="fas fa-credit-card"></i> Tarjetas</a>
-        <a href="#"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        <a href="{{ url_for('cuenta_rutas.gestionar_cuentas') }}"><i class="fas fas fa-credit-card"></i> Tarjetas</a>
+        <a href="{{ url_for('transaccion_rutas.registrar_transaccion') }}"><i class="fas fa-exchange-alt"></i> Transaccion</a>
+        <a href="{{ url_for('usuario_rutas.logout') }}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
       </nav>
     </aside>
 
@@ -27,7 +23,7 @@
         <h2>Hola, {{usuario.nombre}}. Bienvenido de nuevo</h2>
         <div class="header-actions">
           <div class="user-profile">
-            <img src="{{ url_for('static', filename='img/user.jpg') }}" alt="Usuario">
+            <img src="{{ url_for('static', filename='img/user_default.png') }}" alt="Usuario">
             <span>{{usuario.nombre}}</span>
           </div>
         </div>
@@ -44,7 +40,16 @@
         </div>
         <div class="card">
           <h3>Tarjeta Activa</h3>
-          <p><strong>{{ cuenta.nombre }}</strong> — ₡{{ cuenta.saldo | default(0) | round(2) }}</p>
+          <form method="get" action="{{ url_for('index_rutas.home') }}">
+            <select name="cuenta_id" onchange="this.form.submit()">
+                {% for c in cuentas %}
+                  <option value="{{ c.id }}" {% if c.id == cuenta.id %}selected{% endif %}>
+                    {{ c.nombre }}
+                  </option>
+                {% endfor %}
+              </select>
+          </form>
+          <p><strong>{{ cuenta.nombre }}</strong> — ₡{{ cuenta.saldo }}</p>
         </div>
         <div class="card">
           <h3>Categorías</h3>
@@ -68,11 +73,20 @@
         <div class="card">
           <h4>Transacciones recientes</h4>
           <table class="transactions-table">
+            <thead>
+              <tr>
+                <th>Categoría</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+                <th>Monto</th>
+              </tr>
+            </thead>
             {% for item in categorias %}
               {% for trans in item.transacciones %}
                 <tr>
                   <td>{{ item.categoria.nombre }}</td>
                   <td>{{ item.categoria.tipo.value }}</td>
+                  <td>{{ trans.descripcion }}</td>
                   <td class="{% if trans.monto >= 0 %}positive{% else %}negative{% endif %}">
                     {{ "₡" if trans.monto >= 0 else "-₡" }}{{ trans.monto | abs }}
                   </td>
@@ -80,7 +94,7 @@
               {% endfor %}
             {% else %}
               <tr>
-                <td colspan="3">No hay transacciones disponibles</td>
+                <td colspan="4">No hay transacciones disponibles</td>
               </tr>
             {% endfor %}
           </table>

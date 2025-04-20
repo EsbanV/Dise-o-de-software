@@ -27,15 +27,9 @@ def registrar_transaccion():
         descripcion = request.form.get('descripcion')
         monto = float(request.form.get('monto'))
 
-        categoria = CategoriaServicio.obtener_categoria_por_id(categoria_id)
-
-        if categoria.tipo == TipoCategoria.GASTO:
-            monto = -abs(monto)
-        else:
-            monto = abs(monto)
-
         try:
             TransaccionServicio.registrar_transaccion(cuenta_id, categoria_id, descripcion, monto)
+            print("pase la ruta")
             flash('Transacción registrada correctamente.', 'success')
         except Exception as e:
             flash(f'Error al registrar la transacción: {str(e)}', 'danger')

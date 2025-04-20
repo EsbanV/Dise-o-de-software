@@ -7,11 +7,11 @@ class Transaccion(db.Model):
     monto = db.Column(db.Float, nullable=False)
     descripcion = db.Column(db.String(200), nullable=True)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
-    categoria_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=False)
-    cuenta_bancaria_id = db.Column(db.Integer,db.ForeignKey('cuentas_bancarias.id'), nullable=False)
+    categoria_id = db.Column(db.Integer, db.ForeignKey('categorias.id', ondelete='CASCADE'), nullable=False)
+    cuenta_bancaria_id = db.Column(db.Integer,db.ForeignKey('cuentas_bancarias.id', ondelete='CASCADE'), nullable=False)
 
-    cuenta_bancaria = db.relationship("CuentaBancaria", back_populates="transacciones")
-    categoria = db.relationship("Categoria", back_populates="transacciones")
+    cuenta_bancaria = db.relationship("CuentaBancaria", back_populates="transacciones", passive_deletes=True)
+    categoria = db.relationship("Categoria", back_populates="transacciones", passive_deletes=True)
 
     def __repr__(self):
         return f'<Transaccion {self.id}>'

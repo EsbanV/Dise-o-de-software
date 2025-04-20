@@ -10,8 +10,15 @@ def home():
     if not usuario_id:
         return redirect(url_for('usuario_rutas.login'))
 
-    usuario = UsuarioServicio.datos_usuario(usuario_id)
-    resumen = UsuarioServicio.obtener_resumen(usuario_id)
+    cuenta_id = request.args.get('cuenta_id', type=int)
+
+    try:
+        usuario = UsuarioServicio.datos_usuario(usuario_id)
+    except ValueError:
+        session.pop('usuario_id', None)
+        return redirect(url_for('usuario_rutas.login'))
+
+    resumen = UsuarioServicio.obtener_resumen(usuario_id, cuenta_id)
 
     return render_template(
         'index.html',

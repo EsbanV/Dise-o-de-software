@@ -5,10 +5,14 @@ from servicios.base_datos import ServicioBaseDatos
 class PresupuestoServicio:
     @staticmethod
     def asignar_presupuesto(categoria_id, monto_asignado):
-        presupuesto = ServicioBaseDatos.obtener_unico_con_filtro(Presupuesto, [Presupuesto.categoria_id == categoria_id])
+        presupuesto = ServicioBaseDatos.obtener_unico_con_filtro(
+            Presupuesto,
+            [Presupuesto.categoria_id == categoria_id]
+        )
         try:
             if presupuesto:
                 presupuesto.monto_asignado = monto_asignado
+                ServicioBaseDatos.actualizar()
                 logging.info("Presupuesto actualizado para categoría %s: nuevo monto %s", categoria_id, monto_asignado)
             else:
                 presupuesto = Presupuesto(categoria_id=categoria_id, monto_asignado=monto_asignado)
@@ -17,7 +21,9 @@ class PresupuestoServicio:
         except Exception as e:
             logging.error("Error al asignar presupuesto para categoría %s: %s", categoria_id, e)
             raise e
+
         return presupuesto
+
 
     @staticmethod
     def obtener_presupuesto(categoria_id):

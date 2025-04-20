@@ -2,21 +2,31 @@ import logging
 from modelos.cuenta_bancaria import CuentaBancaria
 from servicios.categoria_servicio import CategoriaServicio
 from servicios.base_datos import ServicioBaseDatos
+from utilidades.validaciones import validar_nombre, validar_monto
 
 class CuentaBancariaServicio:
+    CATEGORIAS_GASTO_PREDEFINIDAS = ["Alimentación", "Transporte", "Entretenimiento", "Salud"]
+    CATEGORIAS_INGRESO_PREDEFINIDAS = ["Salario", "Inversiones"]
+
     @staticmethod
     def crear_cuenta(nombre, saldo_inicial, usuario_id):
+
+        if not validar_nombre(nombre):
+            raise ValueError("Nombre de cuenta inválido")
+
+        if not validar_monto(saldo_inicial):
+            raise ValueError("Saldo inicial debe ser un número positivo")
+
         nueva_cuenta = CuentaBancaria(nombre=nombre, saldo=saldo_inicial, usuario_id=usuario_id)
-        categorias_gasto = ["Alimentación", "Transporte", "Entretenimiento", "Salud"]
-        categorias_ingreso = ["Salario", "Inversiones"]
         try:
             ServicioBaseDatos.agregar(nueva_cuenta)
-            for i in categorias_gasto:
-                categoria = CategoriaServicio.crear_categoria(i, "GASTO", nueva_cuenta.id)
+
+            for nombre_categoria in CuentaBancariaServicio.CATEGORIAS_GASTO_PREDEFINIDAS:
+                categoria = CategoriaServicio.crear_categoria(nombre_categoria, "GASTO", nueva_cuenta.id)
                 ServicioBaseDatos.agregar(categoria)
 
-            for i in categorias_ingreso:
-                categoria = CategoriaServicio.crear_categoria(i, "INGRESO", nueva_cuenta.id)
+            for nombre_categoria in CuentaBancariaServicio.CATEGORIAS_INGRESO_PREDEFINIDAS:
+                categoria = CategoriaServicio.crear_categoria(nombre_categoria, "INGRESO", nueva_cuenta.id)
                 ServicioBaseDatos.agregar(categoria)
 
             logging.info("Cuenta bancaria creada correctamente: %s", nueva_cuenta.nombre)
@@ -27,10 +37,10 @@ class CuentaBancariaServicio:
 
     @staticmethod
     def obtener_cuentas(usuario_id):
-        cuentas =   ServicioBaseDatos.obtener_con_filtro(CuentaBancaria, [CuentaBancaria.usuario_id == usuario_id])
+        cuentas = ServicioBaseDatos.obtener_con_filtro(CuentaBancaria, [CuentaBancaria.usuario_id == usuario_id])
         logging.info("Obtenidas %d cuentas para el usuario %s", len(cuentas), usuario_id)
         return cuentas
-    
+
     @staticmethod
     def obtener_cuenta_por_id(cuenta_id):
         cuenta = ServicioBaseDatos.obtener_por_id(CuentaBancaria, cuenta_id)
@@ -43,31 +53,36 @@ class CuentaBancariaServicio:
     @staticmethod
     def actualizar_cuenta(cuenta_id, nombre=None, saldo=None):
         cuenta = CuentaBancaria.query.get(cuenta_id)
-        if cuenta:
-            if nombre is not None:
-                cuenta.nombre = nombre
-            if saldo is not None:
-                cuenta.saldo = saldo
-            try:
-                ServicioBaseDatos.actualizar(cuenta)
-                logging.info("Cuenta bancaria actualizada: ID %s", cuenta_id)
-            except Exception as e:
-                logging.error("Error al actualizar la cuenta ID %s: %s", cuenta_id, e)
-                raise e
-        else:
+        if not cuenta:
             logging.warning("No se pudo actualizar, cuenta no encontrada: ID %s", cuenta_id)
+            return None
+
+        if nombre is not None:
+            cuenta.nombre = nombre
+        if saldo is not None:
+            cuenta.saldo = saldo
+
+        try:
+            ServicioBaseDatos.actualizar()
+            logging.info("Cuenta bancaria actualizada: ID %s", cuenta_id)
+        except Exception as e:
+            logging.error("Error al actualizar la cuenta ID %s: %s", cuenta_id, e)
+            raise e
+
         return cuenta
 
     @staticmethod
     def eliminar_cuenta(cuenta_id):
         cuenta = CuentaBancaria.query.get(cuenta_id)
-        if cuenta:
-            try:
-                ServicioBaseDatos.eliminar(cuenta)
-                logging.info("Cuenta bancaria eliminada: ID %s", cuenta_id)
-            except Exception as e:
-                logging.error("Error al eliminar cuenta bancaria ID %s: %s", cuenta_id, e)
-                raise e
-        else:
+        if not cuenta:
             logging.warning("Intento de eliminar cuenta inexistente: ID %s", cuenta_id)
+            return None
+
+        try:
+            ServicioBaseDatos.eliminar(cuenta)
+            logging.info("Cuenta bancaria eliminada: ID %s", cuenta_id)
+        except Exception as e:
+            logging.error("Error al eliminar cuenta bancaria ID %s: %s", cuenta_id, e)
+            raise e
+
         return cuenta

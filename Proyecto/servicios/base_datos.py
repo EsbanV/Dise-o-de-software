@@ -11,7 +11,7 @@ class ServicioBaseDatos:
             raise e
 
     @staticmethod
-    def actualizar(instancia):
+    def actualizar():
         try:
             db.session.commit()
         except Exception as e:

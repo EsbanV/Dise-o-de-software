@@ -11,11 +11,11 @@ class Categoria(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
     tipo = db.Column(SqlEnum(TipoCategoria), nullable=False)
-    cuenta_id = db.Column(db.Integer, db.ForeignKey('cuentas_bancarias.id'), nullable=False)
+    cuenta_id = db.Column(db.Integer, db.ForeignKey('cuentas_bancarias.id', ondelete='CASCADE'), nullable=False)
 
-    cuenta_bancaria = db.relationship("CuentaBancaria", back_populates="categorias")
-    presupuesto = db.relationship("Presupuesto", uselist=False, back_populates="categoria")
-    transacciones = db.relationship("Transaccion", back_populates="categoria")
+    cuenta_bancaria = db.relationship("CuentaBancaria", back_populates="categorias", passive_deletes=True)
+    presupuesto = db.relationship("Presupuesto", uselist=False, back_populates="categoria", passive_deletes=True)
+    transacciones = db.relationship("Transaccion", back_populates="categoria", passive_deletes=True)
 
     def es_ingreso(self):
         return self.tipo == TipoCategoria.INGRESO
