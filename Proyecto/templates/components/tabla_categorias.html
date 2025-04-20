@@ -1,0 +1,36 @@
+<div class="orders-table">
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Tipo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tabla-categorias">
+      {% for categoria in categorias %}
+      <tr data-id="{{ categoria.id }}">
+        <td>
+          <form method="post" action="{{ url_for('categoria_rutas.actualizar_categoria_vista', categoria_id=categoria.id) }}" style="display: inline;">
+            <span class="nombre-text">{{ categoria.nombre }}</span>
+            <input type="text" name="nombre" class="nombre-input" value="{{ categoria.nombre }}" style="display: none;" required>
+            <button type="button" class="btn-edit" onclick="habilitarEdicion(this)"><i class="fas fa-edit"></i></button>
+            <button type="button" class="btn-cancel" onclick="cancelarEdicion(this)" style="display: none;"><i class="fas fa-times"></i></button>
+            <button type="submit" class="btn-save" style="display: none;"><i class="fas fa-check"></i></button>
+          </form>
+        </td>
+        <td>{{ categoria.tipo.value }}</td>
+        <td>
+          <form method="post" action="{{ url_for('categoria_rutas.eliminar_categoria_vista', categoria_id=categoria.id) }}" style="display: inline;">
+            <button type="submit" class="btn-delete" onclick="return confirm('¿Estás seguro de eliminar esta categoría?')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="3" style="text-align: center;">No hay categorías para mostrar</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

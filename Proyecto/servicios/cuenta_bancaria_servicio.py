@@ -22,11 +22,13 @@ class CuentaBancariaServicio:
             ServicioBaseDatos.agregar(nueva_cuenta)
 
             for nombre_categoria in CuentaBancariaServicio.CATEGORIAS_GASTO_PREDEFINIDAS:
-                categoria = CategoriaServicio.crear_categoria(nombre_categoria, "GASTO", nueva_cuenta.id)
+                presupuesto=None
+                categoria = CategoriaServicio.crear_categoria(nombre_categoria, "GASTO", presupuesto, nueva_cuenta.id)
                 ServicioBaseDatos.agregar(categoria)
 
             for nombre_categoria in CuentaBancariaServicio.CATEGORIAS_INGRESO_PREDEFINIDAS:
-                categoria = CategoriaServicio.crear_categoria(nombre_categoria, "INGRESO", nueva_cuenta.id)
+                presupuesto=None
+                categoria = CategoriaServicio.crear_categoria(nombre_categoria, "INGRESO", presupuesto, nueva_cuenta.id)
                 ServicioBaseDatos.agregar(categoria)
 
             logging.info("Cuenta bancaria creada correctamente: %s", nueva_cuenta.nombre)

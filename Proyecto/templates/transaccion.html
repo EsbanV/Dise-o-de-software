@@ -25,35 +25,26 @@
 
       <div class="card" style="margin-bottom: 2rem;">
         <h3>Seleccionar Cuenta</h3>
-        <form method="GET" action="{{ url_for('transaccion_rutas.registrar_transaccion') }}">
-          <div class="form-group">
-            <label for="cuenta_id">Cuenta:</label>
-            <select name="cuenta_id" id="cuenta_id" required>
-              {% for cuenta in cuentas %}
-                <option value="{{ cuenta.id }}" {% if cuenta_id == cuenta.id %}selected{% endif %}>
-                  {{ cuenta.nombre }} (Saldo: {{ cuenta.saldo }})
-                </option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn-primary"><i class="fas fa-arrow-down"></i> Cargar Categorías</button>
-          </div>
-        </form>
+        <div class="form-group">
+          <label for="cuenta_id">Cuenta:</label>
+          <select name="cuenta_id" id="cuenta_id" required>
+            <option value="">Seleccione una cuenta</option>
+            {% for cuenta in cuentas %}
+              <option value="{{ cuenta.id }}">{{ cuenta.nombre }} (Saldo: {{ cuenta.saldo }})</option>
+            {% endfor %}
+          </select>
+        </div>
       </div>
 
-      {% if categorias %}
-      <div class="card">
+      <div class="card" id="transaccion-form-container" style="display: none">
         <h3>Registrar Nueva Transacción</h3>
-        <form method="POST" action="{{ url_for('transaccion_rutas.registrar_transaccion') }}">
-          <input type="hidden" name="cuenta_id" value="{{ cuenta_id }}">
+        <form method="POST" id="form-transaccion">
+          <input type="hidden" value="{{ cuenta_id }}" name="cuenta_id" id="form_cuenta_id">
 
           <div class="form-group">
             <label for="categoria_id">Categoría:</label>
             <select name="categoria_id" id="categoria_id" required>
-              {% for cat in categorias %}
-                <option value="{{ cat.id }}">{{ cat.nombre }} ({{ cat.tipo }})</option>
-              {% endfor %}
+              <option value="">Seleccione una categoría</option>
             </select>
           </div>
 
@@ -72,8 +63,97 @@
           </div>
         </form>
       </div>
-      {% endif %}
     </main>
   </div>
+
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const formTransaccion = document.getElementById('form-transaccion');
+
+  if (formTransaccion) {
+    formTransaccion.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const cuentaId = formTransaccion.cuenta_id.value;
+      const categoriaId = formTransaccion.categoria_id.value;
+      const monto = formTransaccion.monto.value;
+      const descripcion = formTransaccion.descripcion.value;
+
+      try {
+        const res = await fetch('/api/registrar', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cuenta_id: cuentaId,
+            categoria_id: categoriaId,
+            monto: parseFloat(monto),
+            descripcion: descripcion
+          })
+        });
+
+        if (!res.ok) throw new Error(await res.text());
+
+        const resultado = await res.json();
+        alert('✅ Transacción registrada exitosamente');
+
+        // 👇 Actualiza el saldo mostrado en el <option> seleccionado
+        const option = document.querySelector(`#cuenta_id option[value="${cuentaId}"]`);
+
+        if (option && resultado.nuevo_saldo !== undefined) {
+          const nombreLimpio = option.textContent.split(' (')[0];
+          option.textContent = `${nombreLimpio} (Saldo: ${parseFloat(resultado.nuevo_saldo).toFixed(2)})`;
+        }
+
+        formTransaccion.reset();
+
+      } catch (err) {
+        alert("❌ Error al registrar transacción: " + err.message);
+        console.error(err);
+      }
+    });
+  }
+});
+
+
+    document.getElementById('cuenta_id').addEventListener('change', async function () {
+      const cuentaId = this.value;
+      const formContainer = document.getElementById('transaccion-form-container');
+      const categoriaSelect = document.getElementById('categoria_id');
+      const formCuentaId = document.getElementById('form_cuenta_id');
+
+      if (!cuentaId) {
+        formContainer.style.display = 'none';
+        categoriaSelect.innerHTML = '<option value="">Seleccione una categoría</option>';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/categorias?cuenta_id=${cuentaId}`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        if (!response.ok) throw new Error('Error al obtener las categorías');
+        const categorias = await response.json();
+
+        categoriaSelect.innerHTML = '<option value="">Seleccione una categoría</option>';
+        categorias.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.id;
+          option.textContent = `${cat.nombre} (${cat.tipo})`;
+          categoriaSelect.appendChild(option);
+        });
+
+        formCuentaId.value = cuentaId;
+        formContainer.style.display = 'block';
+      } catch (error) {
+        console.error(error);
+        alert('No se pudieron cargar las categorías.');
+      }
+    });
+
+    
+  </script>
 </body>
 </html>
