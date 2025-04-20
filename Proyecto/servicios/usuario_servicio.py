@@ -3,6 +3,12 @@ from modelos.usuario import Usuario
 from servicios.base_datos import ServicioBaseDatos
 from utilidades.seguridad import encriptar_contrasena, verificar_contrasena
 from utilidades.validaciones import validar_email, validar_password
+from servicios.cuenta_bancaria_servicio import CuentaBancariaServicio
+from servicios.categoria_servicio import CategoriaServicio
+from servicios.transaccion_servicio import TransaccionServicio
+from modelos.categoria import TipoCategoria
+from modelos.transaccion import Transaccion
+from sqlalchemy.orm import joinedload
 
 class UsuarioServicio:
     @staticmethod
@@ -76,3 +82,50 @@ class UsuarioServicio:
         else:
             logging.warning("Usuario no encontrado: ID %s", usuario_id)
             raise ValueError("Usuario no encontrado")
+        
+
+    @staticmethod
+    def obtener_resumen(usuario_id):
+        cuentas = CuentaBancariaServicio.obtener_cuentas(usuario_id)
+
+        if not cuentas:
+            return {
+                "cuenta": None,
+                "cuentas": [],
+                "total_ingresos": 0.0,
+                "total_gastos": 0.0,
+                "categorias": []
+            }
+
+        cuenta = cuentas[0]
+
+        # Cargar transacciones con categoría incluida
+        transacciones = Transaccion.query.options(
+            joinedload(Transaccion.categoria)
+        ).filter_by(cuenta_bancaria_id=cuenta.id).all()
+
+        total_ingresos = sum(
+            t.monto for t in transacciones if t.categoria and t.categoria.tipo == TipoCategoria.INGRESO
+        )
+        total_gastos = sum(
+            -t.monto for t in transacciones if t.categoria and t.categoria.tipo == TipoCategoria.GASTO
+        )
+
+        # Armar categorías con sus transacciones
+        categorias_raw = CategoriaServicio.obtener_categorias(cuenta.id)
+        categorias = []
+
+        for categoria in categorias_raw:
+            trans = TransaccionServicio.obtener_por_categoria_y_cuenta(cuenta.id, categoria.id)
+            categorias.append({
+                "categoria": categoria,
+                "transacciones": trans
+            })
+
+        return {
+            "cuenta": cuenta,
+            "cuentas": cuentas,
+            "total_ingresos": total_ingresos,
+            "total_gastos": total_gastos,
+            "categorias": categorias
+        }

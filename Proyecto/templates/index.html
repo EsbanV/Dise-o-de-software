@@ -1,37 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Financiero</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MÍAPP</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <div class="dashboard-container">
-    <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="logo">💰 MiApp</div>
+      <div class="logo">MÍAPP</div>
       <nav class="menu">
-        <a href="{{ url_for('cuenta_rutas.gestionar_cuentas') }}">cuentas</a>
-        <a href="{{ url_for('transaccion_rutas.registrar_transaccion') }}">transaccion</a>
-        <a href="#">#</a>
-        <a href="#">#</a>
-        <a href="#">#</a>
-        <a href="#">#</a>
-        <a href="#">#</a>
-        <a href="{{ url_for('usuario_rutas.logout') }}">Cerrar Sesion</a>
+        <a href="{{ url_for('index_rutas.home') }}"><i class="fas fa-home"></i> Inicio</a>
+        <a href="{{ url_for('cuenta_rutas.gestionar_cuentas') }}"><i class="fas fa-chart-pie"></i> Resumen</a>
+        <a href="{{ url_for('transaccion_rutas.registrar_transaccion') }}"><i class="fas fa-exchange-alt"></i> Transacciones</a>
+        <a href="#"><i class="fas fa-wallet"></i> Presupuestos</a>
+        <a href="#"><i class="fas fa-tags"></i> Categorías</a>
+        <a href="#"><i class="fas fa-credit-card"></i> Tarjetas</a>
+        <a href="#"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
       </nav>
     </aside>
 
-    <!-- Contenido principal -->
     <main class="main-content">
       <header class="dashboard-header">
         <h2>Hola, {{usuario.nombre}}. Bienvenido de nuevo</h2>
         <div class="header-actions">
-          <input type="search" placeholder="Buscar..." />
           <div class="user-profile">
-            <img src="{{ url_for('static', filename='img/user.jpg') }}" alt="Usuario" />
+            <img src="{{ url_for('static', filename='img/user.jpg') }}" alt="Usuario">
             <span>{{usuario.nombre}}</span>
           </div>
         </div>
@@ -40,48 +36,61 @@
       <section class="cards-overview">
         <div class="card">
           <h3>Total Ingresos</h3>
-          <p>$857,850</p>
+          <p class="positive">₡{{ total_ingresos | default(0) | round(2) }}</p>
         </div>
         <div class="card">
           <h3>Gastos Totales</h3>
-          <p>$198,110</p>
+          <p class="negative">₡{{ total_gastos | default(0) | round(2) }}</p>
         </div>
         <div class="card">
           <h3>Tarjeta Activa</h3>
-          <p>$1,623.22</p>
+          <p><strong>{{ cuenta.nombre }}</strong> — ₡{{ cuenta.saldo | default(0) | round(2) }}</p>
         </div>
         <div class="card">
           <h3>Categorías</h3>
-          <canvas id="chart-categorias"></canvas>
+          <div class="categories-placeholder">
+            {% for item in categorias %}
+              <p>{{ item.categoria.nombre }} ({{ item.categoria.tipo.value }})</p>
+            {% endfor %}
+          </div>
         </div>
       </section>
+      
 
-      <section class="charts-section">
-        <div class="chart-box">
+      <section class="chart-section">
+        <div class="card">
           <h4>Dissection</h4>
-          <canvas id="chart-dissection"></canvas>
-        </div>
-        <div class="chart-box">
-          <h4>Ingresos vs Gastos</h4>
-          <canvas id="chart-ingresos-gastos"></canvas>
+          <div class="chart-placeholder"></div>
         </div>
       </section>
 
-      <section class="transactions-list">
-        <div class="chart-box">
+      <section class="recent-transactions">
+        <div class="card">
           <h4>Transacciones recientes</h4>
-          <ul class="transaction-items">
-            <li><span>Supermercado</span><span>Alimentos</span><span class="negativo">-$23.55</span></li>
-            <li><span>Luz</span><span>Servicios</span><span class="negativo">-$45.00</span></li>
-            <li><span>Sueldo</span><span>Ingreso</span><span class="positivo">+$1500.00</span></li>
-            <li><span>Farmacia</span><span>Salud</span><span class="negativo">-$19.99</span></li>
-          </ul>
+          <table class="transactions-table">
+            {% for item in categorias %}
+              {% for trans in item.transacciones %}
+                <tr>
+                  <td>{{ item.categoria.nombre }}</td>
+                  <td>{{ item.categoria.tipo.value }}</td>
+                  <td class="{% if trans.monto >= 0 %}positive{% else %}negative{% endif %}">
+                    {{ "₡" if trans.monto >= 0 else "-₡" }}{{ trans.monto | abs }}
+                  </td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="3">No hay transacciones disponibles</td>
+              </tr>
+            {% endfor %}
+          </table>
         </div>
       </section>
-
+      
     </main>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>
 </html>

@@ -3,6 +3,7 @@ from modelos.transaccion import Transaccion
 from modelos.presupuesto import Presupuesto
 from modelos.cuenta_bancaria import CuentaBancaria
 from servicios.base_datos import ServicioBaseDatos
+from sqlalchemy.orm import joinedload
 
 class TransaccionServicio:
     @staticmethod
@@ -32,10 +33,16 @@ class TransaccionServicio:
         return transaccion
 
     @staticmethod
-    def obtener_transacciones(categoria_id):
+    def obtener_transacciones_por_categoria(categoria_id):
         transacciones = ServicioBaseDatos.obtener_con_filtro(Transaccion, [Transaccion.categoria_id == categoria_id])
         logging.info("Obtenidas %d transacciones para la categoría %s", len(transacciones), categoria_id)
         return transacciones
+    
+    @staticmethod
+    def obtener_transacciones_por_cuenta(cuenta_id):
+        return Transaccion.query.options(
+            joinedload(Transaccion.categoria)
+        ).filter_by(cuenta_bancaria_id=cuenta_id).all()
 
     @staticmethod
     def actualizar_transaccion(transaccion_id, nuevo_monto):
@@ -72,3 +79,6 @@ class TransaccionServicio:
         else:
             logging.warning("Intento de eliminar transacción inexistente: ID %s", transaccion_id)
         return transaccion
+
+    def obtener_por_categoria_y_cuenta(cuenta_id, categoria_id):
+        return ServicioBaseDatos.obtener_con_filtro(Transaccion, [Transaccion.cuenta_bancaria_id == cuenta_id, Transaccion.categoria_id == categoria_id])
