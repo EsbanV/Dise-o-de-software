@@ -6,6 +6,7 @@
   <title>MÍAPP</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="dashboard-container">
@@ -20,15 +21,17 @@
 
     <main class="main-content">
       <header class="dashboard-header">
-        <h2>Hola, {{usuario.nombre}}. Bienvenido de nuevo</h2>
+        <h2>Hola, {{ usuario.nombre }}. Bienvenido de nuevo</h2>
         <div class="header-actions">
           <div class="user-profile">
             <img src="{{ url_for('static', filename='img/user_default.png') }}" alt="Usuario">
-            <span>{{usuario.nombre}}</span>
+            <span>{{ usuario.nombre }}</span>
           </div>
         </div>
       </header>
-
+    
+      {% if cuenta %}
+      <!-- Mostrar contenido normal si hay cuenta -->
       <section class="cards-overview">
         <div class="card">
           <h3>Total Ingresos</h3>
@@ -42,33 +45,31 @@
           <h3>Tarjeta Activa</h3>
           <form method="get" action="{{ url_for('index_rutas.home') }}">
             <select name="cuenta_id" onchange="this.form.submit()">
-                {% for c in cuentas %}
-                  <option value="{{ c.id }}" {% if c.id == cuenta.id %}selected{% endif %}>
-                    {{ c.nombre }}
-                  </option>
-                {% endfor %}
-              </select>
+              {% for c in cuentas %}
+                <option value="{{ c.id }}" {% if c.id == cuenta.id %}selected{% endif %}>
+                  {{ c.nombre }}
+                </option>
+              {% endfor %}
+            </select>
           </form>
           <p><strong>{{ cuenta.nombre }}</strong> — ₡{{ cuenta.saldo }}</p>
         </div>
         <div class="card">
-          <h3>Categorías</h3>
-          <div class="categories-placeholder">
-            {% for item in categorias %}
-              <p>{{ item.categoria.nombre }} ({{ item.categoria.tipo.value }})</p>
-            {% endfor %}
-          </div>
+          <h3>Gastos (%)</h3>
+          <canvas id="graficoGastos" style="max-height: 200px;"></canvas>
+    
+          <h3>Ingresos (%)</h3>
+          <canvas id="graficoIngresos" style="max-height: 200px;"></canvas>
         </div>
       </section>
-      
-
+    
       <section class="chart-section">
         <div class="card">
-          <h4>Dissection</h4>
-          <div class="chart-placeholder"></div>
+          <h4>Distribución por Categoría</h4>
+          <canvas id="graficoCategorias"></canvas>
         </div>
       </section>
-
+    
       <section class="recent-transactions">
         <div class="card">
           <h4>Transacciones recientes</h4>
@@ -100,11 +101,132 @@
           </table>
         </div>
       </section>
-      
+    
+      {% else %}
+      <!-- Bienvenida para usuario sin cuentas -->
+      <section class="welcome-section">
+        <div class="welcome-card">
+          <h1>👋 ¡Hola {{ usuario.nombre }}!</h1>
+          <h2>Bienvenido a tu panel financiero</h2>
+          <p>Tu espacio central para monitorear y administrar tus finanzas personales.</p>
+          <a href="{{ url_for('cuenta_rutas.gestionar_cuentas') }}" class="welcome-btn">
+            <i class="fas fa-plus-circle"></i> Crear mi primera tarjeta
+          </a>
+        </div>
+      </section>      
+      {% endif %}
     </main>
+    
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 👇 Datos del resumen (balance total)
+      const resumen = {
+        ingresos: {{ datos_grafico.ingresos | round(2) }},
+        gastos: {{ datos_grafico.gastos | round(2) }},
+        balance: {{ datos_grafico.balance_neto | round(2) }}
+      };
+  
+      const porcentaje = (valor) => {
+        const total = resumen.ingresos + resumen.gastos;
+        return total > 0 ? (valor / total * 100).toFixed(1) : 0;
+      };
+  
+      // 👇 Donut: Gastos vs resto
+      new Chart(document.getElementById('graficoGastos'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Gastos', 'Resto'],
+          datasets: [{
+            data: [resumen.gastos, resumen.ingresos],
+            backgroundColor: ['#ff4d4d', '#e0e0e0']
+          }]
+        },
+        options: {
+          cutout: '70%',
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  return `${ctx.label}: ${porcentaje(ctx.raw)}%`;
+                }
+              }
+            },
+            legend: { display: false }
+          }
+        }
+      });
+  
+      // 👇 Donut: Ingresos vs resto
+      new Chart(document.getElementById('graficoIngresos'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Ingresos', 'Resto'],
+          datasets: [{
+            data: [resumen.ingresos, resumen.gastos],
+            backgroundColor: ['#4caf50', '#e0e0e0']
+          }]
+        },
+        options: {
+          cutout: '70%',
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  return `${ctx.label}: ${porcentaje(ctx.raw)}%`;
+                }
+              }
+            },
+            legend: { display: false }
+          }
+        }
+      });
+  
+      // 👇 Datos por categoría (para gráfico de barras)
+      const categorias = {{ datos_grafico_categoria | default([]) | tojson }};
+      const labels = categorias.map(item => item.nombre);
+      const valores = categorias.map(item => item.total);
+      const colores = categorias.map(item => item.tipo === "GASTO" ? "#e74c3c" : "#2ecc71");
+  
+      const ctx = document.getElementById('graficoCategorias').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Monto por Categoría',
+            data: valores,
+            backgroundColor: colores
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (context) => `₡${context.raw.toLocaleString()}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                callback: value => `₡${value}`
+              }
+            }
+          }
+        }
+      });
+    });
+  </script>
+  
+  
+  
+  
+  
+
 </body>
 </html>

@@ -163,6 +163,16 @@ document.addEventListener('DOMContentLoaded', () => {
         filtroCuenta.appendChild(nuevaOpcion);
         filtroCuenta.value = result.cuenta.id;
 
+        const selectCategoriaCuenta = document.getElementById('cuenta_id');
+        if (selectCategoriaCuenta) {
+          const nuevaOpcion2 = document.createElement('option');
+          nuevaOpcion2.value = result.cuenta.id;
+          nuevaOpcion2.textContent = result.cuenta.nombre;
+          selectCategoriaCuenta.appendChild(nuevaOpcion2);
+          selectCategoriaCuenta.value = result.cuenta.id;
+        }
+
+
         actualizarTablaCategorias(result.cuenta.id);
         formCuenta.reset();
         document.getElementById('new-account-form').style.display = 'none';

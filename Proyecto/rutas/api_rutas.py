@@ -3,6 +3,8 @@ from flask import Blueprint, request, jsonify, session
 from servicios.categoria_servicio import CategoriaServicio
 from servicios.cuenta_bancaria_servicio import CuentaBancariaServicio
 from servicios.transaccion_servicio import TransaccionServicio
+from servicios.grafico_servicio import GraficoServicio
+from datetime import datetime, timedelta
 
 from functools import wraps
 
@@ -64,7 +66,7 @@ def crear_cuenta_json():
     }), 201
 
 @api_rutas.route('/categorias', methods=['GET'])
-@login_requerido_api  # <-- si ya lo tienes
+@login_requerido_api
 def obtener_categorias():
     cuenta_id = request.args.get('cuenta_id', type=int)
     tipo = request.args.get('tipo')
@@ -99,12 +101,53 @@ def registrar_transaccion_api():
     monto = data.get("monto")
     descripcion = data.get("descripcion", "")
 
-    transaccion = TransaccionServicio.registrar_transaccion(cuenta_id, categoria_id, descripcion, monto)
+    TransaccionServicio.registrar_transaccion(cuenta_id, categoria_id, descripcion, monto)
 
-    # ✅ Obtener la cuenta bancaria después de registrar
     cuenta = CuentaBancariaServicio.obtener_cuenta_por_id(cuenta_id)
 
     return jsonify({
         "mensaje": "Transacción registrada",
-        "nuevo_saldo": cuenta.saldo  # Ahora sí está definido
+        "nuevo_saldo": cuenta.saldo
     }), 201
+
+
+@api_rutas.route('/api/graficos', methods=['GET'])
+@login_requerido_api
+def obtener_datos_graficos_api():
+    usuario_id = session.get("usuario_id")
+    transacciones = GraficoServicio.obtener_datos_crudos(usuario_id)
+
+    ingresos, gastos = [], []
+    gastos_cat, ingresos_cat, historico = {}, {}, {}
+
+    for t in transacciones:
+        tipo = t.categoria.tipo if t.categoria else 'DESCONOCIDO'
+        monto = abs(t.monto)
+        nombre_cat = t.categoria.nombre if t.categoria else 'Sin categoría'
+
+        if tipo == 'INGRESO':
+            ingresos.append(monto)
+            ingresos_cat[nombre_cat] = ingresos_cat.get(nombre_cat, 0) + monto
+        elif tipo == 'GASTO':
+            gastos.append(monto)
+            gastos_cat[nombre_cat] = gastos_cat.get(nombre_cat, 0) + monto
+
+        if t.fecha >= datetime.now() - timedelta(days=30):
+            dia = t.fecha.strftime('%Y-%m-%d')
+            historico[dia] = historico.get(dia, 0) + t.monto
+
+    return jsonify({
+        "balance": [
+            {"tipo": "INGRESOS", "total": sum(ingresos)},
+            {"tipo": "GASTOS", "total": sum(gastos)}
+        ],
+        "gastos_categoria": [{"nombre": k, "total": v} for k, v in gastos_cat.items()],
+        "ingresos_categoria": [{"nombre": k, "total": v} for k, v in ingresos_cat.items()],
+        "historico": [{"dia": k, "total": v} for k, v in sorted(historico.items())],
+        "totales": {
+            "ingresos": sum(ingresos),
+            "gastos": sum(gastos),
+            "balance_neto": sum(ingresos) - sum(gastos)
+        }
+    })
+

@@ -36,7 +36,7 @@ def gestionar_categorias():
         return redirect(url_for("usuario_rutas.login"))
 
     cuenta_id = request.args.get('cuenta_id', type=int)
-    tipo = request.args.get('tipo')  # "INGRESO", "GASTO" o None
+    tipo = request.args.get('tipo')
 
     cuentas = CuentaBancariaServicio.obtener_cuentas(usuario_id)
 
@@ -52,7 +52,7 @@ def gestionar_categorias():
 
 @categoria_rutas.route('/categorias/actualizar/<int:categoria_id>', methods=['GET', 'POST'])
 def actualizar_categoria_vista(categoria_id):
-    categoria = CategoriaServicio.obtener_categoria_por_id(categoria_id)  # Puedes cambiarlo por get() ya que es por ID
+    categoria = CategoriaServicio.obtener_categoria_por_id(categoria_id)
     if not categoria:
         flash('Categoría no encontrada.', 'danger')
         return redirect(url_for('categoria_rutas.gestionar_categorias'))

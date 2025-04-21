@@ -139,3 +139,4 @@ class UsuarioServicio:
             "total_gastos": total_gastos,
             "categorias": categorias
         }
+    
