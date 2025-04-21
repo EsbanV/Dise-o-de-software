@@ -45,3 +45,8 @@
 2025-04-20 21:38:36,854 INFO: Inicialización de logs completa. [en C:\Users\itand\OneDrive\Documents\GitHub\Dise-o-de-software\Proyecto\utilidades\logging.py:20]
 2025-04-20 21:39:34,938 INFO: Inicialización de logs completa. [en C:\Users\itand\OneDrive\Documents\GitHub\Dise-o-de-software\Proyecto\utilidades\logging.py:20]
 2025-04-20 21:39:37,027 INFO: Inicialización de logs completa. [en C:\Users\itand\OneDrive\Documents\GitHub\Dise-o-de-software\Proyecto\utilidades\logging.py:20]
+2025-04-21 15:35:15,509 INFO: Inicialización de logs completa. [en c:\Users\colin\OneDrive\Escritorio\proyecto diseño soft\Dise-o-de-software\Proyecto\utilidades\logging.py:20]
+2025-04-21 15:35:17,048 INFO: Inicialización de logs completa. [en c:\Users\colin\OneDrive\Escritorio\proyecto diseño soft\Dise-o-de-software\Proyecto\utilidades\logging.py:20]
+2025-04-21 15:35:31,984 ERROR: Error al iniciar sesión: Credenciales inválidas [en c:\Users\colin\OneDrive\Escritorio\proyecto diseño soft\Dise-o-de-software\Proyecto\rutas\usuario_rutas.py:45]
+2025-04-21 15:35:41,892 ERROR: Error al iniciar sesión: Credenciales inválidas [en c:\Users\colin\OneDrive\Escritorio\proyecto diseño soft\Dise-o-de-software\Proyecto\rutas\usuario_rutas.py:45]
+2025-04-21 15:36:46,964 ERROR: Error al iniciar sesión: Credenciales inválidas [en c:\Users\colin\OneDrive\Escritorio\proyecto diseño soft\Dise-o-de-software\Proyecto\rutas\usuario_rutas.py:45]
