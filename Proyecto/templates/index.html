@@ -11,7 +11,7 @@
 <body>
   <div class="dashboard-container">
     <aside class="sidebar">
-      <div class="logo">MÍAPP</div>
+      <div class="logo">FlaskBank</div>
       <nav class="menu">
         <a href="{{ url_for('cuenta_rutas.gestionar_cuentas') }}"><i class="fas fas fa-credit-card"></i> Tarjetas</a>
         <a href="{{ url_for('transaccion_rutas.registrar_transaccion') }}"><i class="fas fa-exchange-alt"></i> Transaccion</a>
@@ -21,7 +21,7 @@
 
     <main class="main-content">
       <header class="dashboard-header">
-        <h2>Hola, {{ usuario.nombre }}. Bienvenido de nuevo</h2>
+        <h2>Hola, {{ usuario.nombre }}. Bienvenido de nuevo!</h2>
         <div class="header-actions">
           <div class="user-profile">
             <img src="{{ url_for('static', filename='img/user_default.png') }}" alt="Usuario">
@@ -33,17 +33,18 @@
       {% if cuenta %}
       <!-- Mostrar contenido normal si hay cuenta -->
       <section class="cards-overview">
-        <div class="card">
+        <div class="card card-altura-unificada">
           <h3>Total Ingresos</h3>
           <p class="positive">₡{{ total_ingresos | default(0) | round(2) }}</p>
         </div>
-        <div class="card">
+        <div class="card card-altura-unificada">
           <h3>Gastos Totales</h3>
           <p class="negative">₡{{ total_gastos | default(0) | round(2) }}</p>
         </div>
-        <div class="card">
+        <div class="card card-altura-unificada">
           <h3>Tarjeta Activa</h3>
-          <form method="get" action="{{ url_for('index_rutas.home') }}">
+          <p><strong>{{ cuenta.nombre }}</strong> — ₡{{ cuenta.saldo }}</p>
+          <form class="bank-filter" method="get" action="{{ url_for('index_rutas.home') }}">
             <select name="cuenta_id" onchange="this.form.submit()">
               {% for c in cuentas %}
                 <option value="{{ c.id }}" {% if c.id == cuenta.id %}selected{% endif %}>
@@ -52,19 +53,24 @@
               {% endfor %}
             </select>
           </form>
-          <p><strong>{{ cuenta.nombre }}</strong> — ₡{{ cuenta.saldo }}</p>
         </div>
-        <div class="card">
-          <h3>Gastos (%)</h3>
-          <canvas id="graficoGastos" style="max-height: 200px;"></canvas>
-    
-          <h3>Ingresos (%)</h3>
-          <canvas id="graficoIngresos" style="max-height: 200px;"></canvas>
+        <div class="card graficos-dona">
+          <div class="donut-container">
+            <div class="donut-item">
+              <h4>Gastos (%)</h4>
+              <canvas id="graficoGastos"></canvas>
+            </div>
+            <div class="donut-item">
+              <h4>Ingresos (%)</h4>
+              <canvas id="graficoIngresos"></canvas>
+            </div>
+          </div>
         </div>
+        
       </section>
     
       <section class="chart-section">
-        <div class="card">
+        <div class="card" style="height: 400px;">
           <h4>Distribución por Categoría</h4>
           <canvas id="graficoCategorias"></canvas>
         </div>
@@ -185,41 +191,49 @@
   
       // 👇 Datos por categoría (para gráfico de barras)
       const categorias = {{ datos_grafico_categoria | default([]) | tojson }};
-      const labels = categorias.map(item => item.nombre);
-      const valores = categorias.map(item => item.total);
-      const colores = categorias.map(item => item.tipo === "GASTO" ? "#e74c3c" : "#2ecc71");
-  
-      const ctx = document.getElementById('graficoCategorias').getContext('2d');
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Monto por Categoría',
-            data: valores,
-            backgroundColor: colores
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: (context) => `₡${context.raw.toLocaleString()}`
-              }
-            }
-          },
-          scales: {
-            x: {
-              ticks: {
-                callback: value => `₡${value}`
-              }
-            }
-          }
+const labels = categorias.map(item => item.nombre);
+const valores = categorias.map(item => item.total);
+const colores = categorias.map(item => item.tipo === "GASTO" ? "#e74c3c" : "#ff4d4d");
+
+const canvas = document.getElementById('graficoCategorias');
+
+// 👇 Ajustar dinámicamente la altura según cantidad de categorías
+canvas.height = Math.min(categorias.length * 40, 400);
+
+const ctx = canvas.getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: labels,
+    datasets: [{
+      label: 'Monto por Categoría',
+      data: valores,
+      backgroundColor: colores,
+      barThickness: 20
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    maintainAspectRatio: false,
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context) => `₡${context.raw.toLocaleString()}`
         }
-      });
+      }
+    },
+    scales: {
+      x: {
+        ticks: {
+          callback: value => `₡${value}`
+        }
+      }
+    }
+  }
+});
+
     });
   </script>
   

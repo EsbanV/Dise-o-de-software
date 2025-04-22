@@ -10,12 +10,9 @@
 </head>
 <body>
   <nav class="navbar">
-    <div class="logo">Mi Aplicación</div>
+    <div class="logo">FlaskBank</div>
     <ul class="nav-links">
-      <li><a href="#home">Inicio</a></li>
-      <li><a href="#about">Acerca de</a></li>
-      <li><a href="#services">Servicios</a></li>
-      <li><a href="#contact">Contacto</a></li>
+      <li><a href="{{ url_for('usuario_rutas.acerca_de') }}">Acerca de</a></li>
       <li><a href="{{ url_for('usuario_rutas.login') }}" class="btn-login">Iniciar Sesión</a></li>
     </ul>
   </nav>

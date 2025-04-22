@@ -52,3 +52,7 @@ def logout():
     session.pop('usuario_id', None)
     flash('Has cerrado sesión exitosamente.', 'success')
     return redirect(url_for('usuario_rutas.login'))
+
+@usuario_rutas.route('/acerca_de')
+def acerca_de():
+    return render_template('acerca_de.html')
