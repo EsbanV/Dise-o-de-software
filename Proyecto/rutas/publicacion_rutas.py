@@ -71,8 +71,8 @@ def crear_comentario(publicacion_id):
 
     contenido = request.form.get('contenido', '').strip()
     if not contenido:
-        return redirect(url_for('publicacion_rutas.ver_publicacion', publicacion_id=publicacion_id))
+        return redirect(url_for('publicacion_rutas.ver_publicacion', publicacion_id=publicacion_id, _anchor='comments'))
 
     PublicacionService.agregar_comentario(publicacion_id, usuario_id, contenido)
 
-    return redirect(url_for('publicacion_rutas.ver_publicacion', publicacion_id=publicacion_id))
+    return redirect(url_for('publicacion_rutas.ver_publicacion', publicacion_id=publicacion_id, _anchor='comments'))

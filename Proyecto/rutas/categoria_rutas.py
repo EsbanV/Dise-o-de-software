@@ -7,7 +7,6 @@ categoria_rutas = Blueprint('categoria_rutas', __name__)
 @categoria_rutas.route('/categorias_vista', methods=['GET', 'POST'])
 def crear_categoria_vista():
 
-    
     if request.method == 'POST':
         try:
             cuenta_id = int(request.form.get('cuenta_id'))
@@ -67,7 +66,7 @@ def actualizar_categoria_vista(categoria_id):
 
 
 
-@categoria_rutas.route('/categorias/eliminar/<int:categoria_id>', methods=['POST'])
+@categoria_rutas.route('/eliminar/<int:categoria_id>', methods=['POST'])
 def eliminar_categoria_vista(categoria_id):
     CategoriaServicio.eliminar_categoria(categoria_id)
     flash('Categoría eliminada.', 'success')

@@ -49,5 +49,6 @@ def home():
         usuario=usuario,
         datos_grafico=datos_grafico,
         datos_grafico_categoria=grafico_gastos_categoria,
-        **resumen
+        **resumen,
+        notificaciones=notificaciones
     )

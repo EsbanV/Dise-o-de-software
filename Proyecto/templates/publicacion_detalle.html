@@ -9,12 +9,44 @@
 </head>
 <body>
   <div class="page-content">
+
+    <p><a href="{{ url_for('publicacion_rutas.foro') }}" class="btn btn-sm btn-primary">
+      ← Volver al Foro
+    </a></p>
     <!-- Artículo -->
     <article>
       <h1>
         <a href="{{ url_for('publicacion_rutas.ver_publicacion', publicacion_id=publicacion.id) }}">
           {{ publicacion.titulo }}
         </a>
+
+        
+    {% set seguidores_ids = publicacion.usuario.seguidores
+                             | map(attribute='subscriber_id')
+                             | list %}
+
+    {% if session.usuario_id %}
+      {% if session.usuario_id in seguidores_ids %}
+<form action="{{ url_for('autor_rutas.desuscribir_autor',
+                          autor_id=publicacion.usuario.id,
+                          from_pub=publicacion.id) }}"
+      method="post">
+          <button type="submit" class="btn btn-sm btn-outline-danger">
+            Desuscribirse
+          </button>
+        </form>
+      {% else %}
+<form action="{{ url_for('autor_rutas.suscribir_autor',
+                          autor_id=publicacion.usuario.id,
+                          from_pub=publicacion.id) }}"
+      method="post">
+          <button type="submit" class="btn btn-sm btn-outline-primary">
+            Suscribirse
+          </button>
+        </form>
+      {% endif %}
+    {% endif %}
+
       </h1>
       <div class="mt-4">
         {{ publicacion.contenido }}
@@ -22,7 +54,7 @@
     </article>
 
     <!-- Sección de comentarios -->
-    <section class="comments-section">
+    <section id="comments" class="comments-section">
       <h3>Deja tu comentario</h3>
       <form class="comment-form"
             action="{{ url_for('publicacion_rutas.crear_comentario', publicacion_id=publicacion.id) }}"
