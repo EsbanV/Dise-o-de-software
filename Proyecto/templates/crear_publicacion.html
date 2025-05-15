@@ -1,42 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crear Nueva Publicación</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/crear_publicacion.css') }}">
 </head>
 <body>
-      <h1>Crear Nueva Publicación</h1>
+  <div class="page-content form-page">
+    <div class="form-container">
+      <h1 class="form-title">Crear Nueva Publicación</h1>
 
-  {% if error %}
-    <div class="alert alert-danger">{{ error }}</div>
-  {% endif %}
+      {% if error %}
+        <div class="alert-error">{{ error }}</div>
+      {% endif %}
 
-  <form action="{{ url_for('publicacion_rutas.crear_publicacion') }}" method="post">
-    <div class="form-group">
-      <label for="titulo">Título</label>
-      <input
-        type="text"
-        id="titulo"
-        name="titulo"
-        class="form-control"
-        value="{{ request.form.titulo or '' }}"
-        required
-      >
+      <form action="{{ url_for('publicacion_rutas.crear_publicacion') }}" method="post">
+        <div class="form-group">
+          <label for="titulo">Título</label>
+          <input
+            type="text"
+            id="titulo"
+            name="titulo"
+            value="{{ request.form.titulo or '' }}"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="contenido">Contenido</label>
+          <textarea
+            id="contenido"
+            name="contenido"
+            rows="6"
+            required
+          >{{ request.form.contenido or '' }}</textarea>
+        </div>
+
+        <button type="submit" class="btn-primary">Publicar</button>
+      </form>
     </div>
-
-    <div class="form-group">
-      <label for="contenido">Contenido</label>
-      <textarea
-        id="contenido"
-        name="contenido"
-        class="form-control"
-        rows="5"
-        required
-      >{{ request.form.contenido or '' }}</textarea>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Publicar</button>
-  </form>
+  </div>
 </body>
 </html>

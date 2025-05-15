@@ -13,7 +13,7 @@
     <aside class="sidebar">
       <div class="logo">FlaskBank</div>
       <nav class="menu">
-        <a href="{{ url_for('publicacion_rutas.foro') }}">Foro</a>
+        <a href="{{ url_for('publicacion_rutas.foro') }}"><i class="fa fa-commenting" aria-hidden="true"></i> Foro</a>
         <a href="{{ url_for('cuenta_rutas.gestionar_cuentas') }}"><i class="fas fas fa-credit-card"></i> Tarjetas</a>
         <a href="{{ url_for('transaccion_rutas.registrar_transaccion') }}"><i class="fas fa-exchange-alt"></i> Transaccion</a>
         <a href="{{ url_for('usuario_rutas.logout') }}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
@@ -24,6 +24,29 @@
       <header class="dashboard-header">
         <h2>Hola, {{ usuario.nombre }}. Bienvenido de nuevo!</h2>
         <div class="header-actions">
+           <div class="notification">
+              <a href="#" class="notification-toggle">
+                <i class="fas fa-bell"></i>
+                {% if notificaciones|length > 0 %}
+                  <span class="notification-count">{{ notificaciones|length }}</span>
+                {% endif %}
+              </a>
+              <!-- Opcional: dropdown con mini-vista -->
+              <div class="notification-dropdown">
+                {% for noti in notificaciones[:5] %}
+                  <div class="notification-item">
+                    {{ noti.mensaje|truncate(50) }}
+                    <small>{{ noti.fecha_creacion.strftime('%H:%M') }}</small>
+                  </div>
+                {% else %}
+                  <div class="notification-item empty">No tienes notificaciones</div>
+                {% endfor %}
+                <div class="notification-footer">
+                  <a href="#">Ver todas</a>
+                </div>
+              </div>
+            </div>
+
           <div class="user-profile">
             <img src="{{ url_for('static', filename='img/user_default.png') }}" alt="Usuario">
             <span>{{ usuario.nombre }}</span>
