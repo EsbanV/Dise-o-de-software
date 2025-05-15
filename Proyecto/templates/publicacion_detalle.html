@@ -20,7 +20,7 @@
           {{ publicacion.titulo }}
         </a>
 
-        
+    {% if session.usuario_id and session.usuario_id != publicacion.usuario.id %}   
     {% set seguidores_ids = publicacion.usuario.seguidores
                              | map(attribute='subscriber_id')
                              | list %}
@@ -46,7 +46,7 @@
         </form>
       {% endif %}
     {% endif %}
-
+{% endif %}
       </h1>
       <div class="mt-4">
         {{ publicacion.contenido }}
