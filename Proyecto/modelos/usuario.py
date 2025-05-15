@@ -1,5 +1,6 @@
 from configuracion.extensiones import db
 from sqlalchemy.orm import relationship
+from modelos.suscripcion import Suscripcion
 
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
@@ -10,6 +11,14 @@ class Usuario(db.Model):
     contrasena = db.Column(db.String(255), nullable=False)
     
     cuentas_bancarias = relationship("CuentaBancaria", back_populates="usuario", passive_deletes=True)
+    comentarios = relationship("Comentario", back_populates="usuario", passive_deletes=True)
+    notificaciones = relationship("Notificacion", back_populates="usuario", passive_deletes=True)
+    publicaciones = relationship("Publicacion", back_populates="usuario", passive_deletes=True)
+    suscripciones = relationship("Suscripcion", back_populates="usuario", cascade="all, delete-orphan")
+
+    siguiendo = relationship("SuscripcionAutor", foreign_keys="[SuscripcionAutor.subscriber_id]", back_populates="suscriptor", cascade="all, delete-orphan")
+    seguidores = relationship("SuscripcionAutor", foreign_keys="[SuscripcionAutor.autor_id]", back_populates="autor", cascade="all, delete-orphan")
+
 
     def __repr__(self):
         return f'<Usuario {self.id} - {self.nombre}>'

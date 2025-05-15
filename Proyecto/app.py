@@ -7,6 +7,9 @@ from rutas.transaccion_rutas import transaccion_rutas
 from rutas.usuario_rutas import usuario_rutas
 from rutas.index_rutas import index_rutas
 from rutas.api_rutas import api_rutas
+from rutas.autor_rutas import autor_rutas
+from rutas.publicacion_rutas import publicacion_rutas
+from rutas.notificacion_rutas import notificacion_rutas
 from configuracion.configuracion import crear_app
 from utilidades.logging import init_logging
 
@@ -18,6 +21,9 @@ def create_app():
     app.register_blueprint(usuario_rutas, url_prefix='/usuarios')
     app.register_blueprint(transaccion_rutas, url_prefix='/transacciones')
     app.register_blueprint(api_rutas, url_prefix='/api')
+    app.register_blueprint(publicacion_rutas)
+    app.register_blueprint(autor_rutas)
+    app.register_blueprint(notificacion_rutas)
     app.register_blueprint(index_rutas)
 
     init_logging(app)

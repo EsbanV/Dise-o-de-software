@@ -13,6 +13,7 @@
     <aside class="sidebar">
       <div class="logo">FlaskBank</div>
       <nav class="menu">
+        <a href="{{ url_for('publicacion_rutas.foro') }}">Foro</a>
         <a href="{{ url_for('cuenta_rutas.gestionar_cuentas') }}"><i class="fas fas fa-credit-card"></i> Tarjetas</a>
         <a href="{{ url_for('transaccion_rutas.registrar_transaccion') }}"><i class="fas fa-exchange-alt"></i> Transaccion</a>
         <a href="{{ url_for('usuario_rutas.logout') }}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>

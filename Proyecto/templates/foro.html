@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foro de Finanzas | Discusiones</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/foro.css') }}">
+</head>
+<body>
+    <div class="container with-sidebar">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">FlaskBank</div>
+            <nav class="menu">
+                <a href="{{ url_for('publicacion_rutas.foro') }}" class="active">
+                    <i class="fas fa-comments"></i> Foro
+                </a>
+                <a href="{{ url_for('cuenta_rutas.gestionar_cuentas') }}">
+                    <i class="fas fa-credit-card"></i> Tarjetas
+                </a>
+                <a href="{{ url_for('transaccion_rutas.registrar_transaccion') }}">
+                    <i class="fas fa-exchange-alt"></i> Transacción
+                </a>
+                <a href="{{ url_for('usuario_rutas.logout') }}">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main content -->
+        <main class="main-content">
+            <header class="forum-header">
+                <h1><i class="fas fa-comments"></i> Foro de Finanzas</h1>
+                <p class="subtitle">Comparte, aprende y domina el arte del manejo del dinero</p>
+            </header>
+
+            <button class="create-post-btn" onclick="location.href='{{ url_for('publicacion_rutas.nueva_publicacion') }}'">
+                <i class="fas fa-plus-circle"></i> Crear Publicación
+            </button>
+
+            <div class="posts-container">
+                {% if publicaciones %}
+                    {% for publicacion in publicaciones %}
+                        <article class="post">
+                            <div class="post-header">
+                                <h2>
+                                    {{ publicacion.titulo }}         
+                                </h2>
+                                <span class="post-date">
+                                    <i class="far fa-calendar-alt"></i>
+                                    {{ publicacion.fecha_creacion.strftime('%d %B %Y') }}
+                                </span>
+                            </div>
+
+                            <div class="post-body">
+                                <p>
+                                    {{ publicacion.contenido[:200] }}{% if publicacion.contenido|length > 200 %}…{% endif %}
+                                </p>
+                            </div>
+
+                            <div class="post-footer">
+                                <span class="author">
+                                    <i class="fas fa-user"></i> {{ publicacion.usuario.nombre }}
+                                </span>
+                                <button class="read-more-btn" 
+                                        onclick="location.href='{{ url_for('publicacion_rutas.ver_publicacion', publicacion_id=publicacion.id) }}'">
+                                    Leer más <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </article>
+                    {% endfor %}
+                {% else %}
+                    <p>No hay publicaciones aún. ¡Sé el primero en crear una!</p>
+                {% endif %}
+            </div>
+
+            <footer class="forum-footer">
+                <p>© 2025 Foro de Finanzas | <i class="fas fa-chart-line"></i> Tu futuro financiero comienza aquí</p>
+            </footer>
+        </main>
+    </div>
+</body>
+</html>

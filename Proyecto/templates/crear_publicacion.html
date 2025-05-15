@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+      <h1>Crear Nueva Publicación</h1>
+
+  {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+
+  <form action="{{ url_for('publicacion_rutas.crear_publicacion') }}" method="post">
+    <div class="form-group">
+      <label for="titulo">Título</label>
+      <input
+        type="text"
+        id="titulo"
+        name="titulo"
+        class="form-control"
+        value="{{ request.form.titulo or '' }}"
+        required
+      >
+    </div>
+
+    <div class="form-group">
+      <label for="contenido">Contenido</label>
+      <textarea
+        id="contenido"
+        name="contenido"
+        class="form-control"
+        rows="5"
+        required
+      >{{ request.form.contenido or '' }}</textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Publicar</button>
+  </form>
+</body>
+</html>

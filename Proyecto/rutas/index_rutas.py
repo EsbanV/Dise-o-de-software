@@ -4,6 +4,7 @@ from servicios.usuario_servicio import UsuarioServicio
 from servicios.grafico_servicio import GraficoServicio
 from modelos.cuenta_bancaria import CuentaBancaria
 from servicios.base_datos import ServicioBaseDatos
+from servicios.notificacion_servicio import NotificacionService
 
 index_rutas = Blueprint('index_rutas', __name__, template_folder='../templates')
 
@@ -20,6 +21,9 @@ def home():
     except ValueError:
         session.pop('usuario_id', None)
         return redirect(url_for('usuario_rutas.login'))
+    
+    notificaciones = NotificacionService.obtener_notificaciones(usuario_id)
+
 
     if not cuenta_id:
         cuenta = ServicioBaseDatos.obtener_unico_con_filtro(
