@@ -49,7 +49,7 @@ def gestionar_categorias():
         tipo=tipo
     )
 
-@categoria_rutas.route('/categorias/actualizar/<int:categoria_id>', methods=['GET', 'POST'])
+@categoria_rutas.route('/actualizar/<int:categoria_id>', methods=['GET', 'POST'])
 def actualizar_categoria_vista(categoria_id):
     categoria = CategoriaServicio.obtener_categoria_por_id(categoria_id)
     if not categoria:
