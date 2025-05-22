@@ -23,7 +23,7 @@ class UsuarioServicio:
     
     def registrar_usuario(self, nombre, correo, contrasena):
 
-        validar_datos_usuario(correo, contrasena)
+        validar_datos_usuario(nombre, correo, contrasena)
 
         if self.repositorio.obtener_con_filtro(Usuario, [Usuario.correo == correo]):
             logging.error("El correo ya está en uso: %s", correo)
