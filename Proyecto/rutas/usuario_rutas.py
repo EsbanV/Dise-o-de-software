@@ -1,5 +1,4 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
-from servicios.usuario_servicio import UsuarioServicio
 
 usuario_rutas = Blueprint('usuario_rutas', __name__, template_folder='../templates')
 
@@ -15,7 +14,7 @@ def registrar_usuario():
             return render_template('registro.html')
         
         try:
-            UsuarioServicio.registrar_usuario(nombre, correo, password)
+            current_app.usuario_servicio.registrar_usuario(nombre, correo, password)
             flash('Usuario registrado exitosamente.', 'success')
             return redirect(url_for('usuario_rutas.login'))
         except Exception as e:
@@ -31,7 +30,7 @@ def login():
         password = request.form.get('password')
         
         try:
-            usuario = UsuarioServicio.iniciar_sesion(correo, password)
+            usuario = current_app.usuario_servicio.iniciar_sesion(correo, password)
         
             if usuario:
                 session['usuario_id'] = usuario.id

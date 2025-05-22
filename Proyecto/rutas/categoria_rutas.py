@@ -1,6 +1,4 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, session
-from servicios.categoria_servicio import CategoriaServicio
-from servicios.cuenta_bancaria_servicio import CuentaBancariaServicio
+from flask import Blueprint, request, render_template, redirect, url_for, flash, session, current_app
 
 categoria_rutas = Blueprint('categoria_rutas', __name__)
 
@@ -18,7 +16,7 @@ def crear_categoria_vista():
             presupuesto = request.form.get('presupuesto', '').strip()
             presupuesto = float(presupuesto) if presupuesto else None
 
-            CategoriaServicio.crear_categoria(nombre, tipo, presupuesto, cuenta_id)
+            current_app.categoria_servicio.crear_categoria(nombre, tipo, presupuesto, cuenta_id)
             flash('Categoría creada exitosamente.', 'success')
         except (TypeError, ValueError) as e:
             flash(f'Error al crear la categoría: {e}', 'danger')
@@ -37,9 +35,9 @@ def gestionar_categorias():
     cuenta_id = request.args.get('cuenta_id', type=int)
     tipo = request.args.get('tipo')
 
-    cuentas = CuentaBancariaServicio.obtener_cuentas(usuario_id)
+    cuentas = current_app.cuenta_bancaria_servicio.obtener_cuentas(usuario_id)
 
-    categorias = CategoriaServicio.obtener_categorias_filtradas(cuenta_id, tipo)
+    categorias = current_app.categoria_servicio.obtener_categorias_filtradas(cuenta_id, tipo)
 
     return render_template(
         "cuentas.html",
@@ -51,14 +49,14 @@ def gestionar_categorias():
 
 @categoria_rutas.route('/actualizar/<int:categoria_id>', methods=['GET', 'POST'])
 def actualizar_categoria_vista(categoria_id):
-    categoria = CategoriaServicio.obtener_categoria_por_id(categoria_id)
+    categoria = current_app.categoria_servicio.obtener_categoria_por_id(categoria_id)
     if not categoria:
         flash('Categoría no encontrada.', 'danger')
         return redirect(url_for('categoria_rutas.gestionar_categorias'))
     
     if request.method == 'POST':
         nuevo_nombre = request.form.get('nombre')
-        CategoriaServicio.actualizar_categoria(categoria_id, nuevo_nombre)
+        current_app.categoria_servicio.actualizar_categoria(categoria_id, nuevo_nombre)
         flash('Categoría actualizada.', 'success')
         return redirect(url_for('categoria_rutas.gestionar_categorias'))
     
@@ -68,7 +66,7 @@ def actualizar_categoria_vista(categoria_id):
 
 @categoria_rutas.route('/eliminar/<int:categoria_id>', methods=['POST'])
 def eliminar_categoria_vista(categoria_id):
-    CategoriaServicio.eliminar_categoria(categoria_id)
+    current_app.categoria_servicio.eliminar_categoria(categoria_id)
     flash('Categoría eliminada.', 'success')
     return redirect(url_for('categoria_rutas.gestionar_categorias'))
 

@@ -1,7 +1,5 @@
-from flask import Blueprint, request, jsonify, abort
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
-from servicios.publicacion_servicio import PublicacionService
-from servicios.autor_servicio import AutorService  # si también notificas a seguidores
+from flask import Blueprint, request, jsonify, abort, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, session
 
 publicacion_rutas = Blueprint('publicacion_rutas', __name__, url_prefix='/publicaciones', template_folder='../templates')
 
@@ -26,7 +24,7 @@ def crear_publicacion():
                                titulo=titulo,
                                contenido=contenido)
 
-    PublicacionService.crear_publicacion(usuario_id, titulo, contenido)
+    current_app.publicacion_servicio.crear_publicacion(usuario_id, titulo, contenido)
 
     return redirect(url_for('publicacion_rutas.foro'))
 
@@ -37,7 +35,7 @@ def listar_publicaciones():
         return redirect(url_for('usuario_rutas.login'))
 
     try:
-        publicaciones = PublicacionService.obtener_publicaciones()
+        publicaciones = current_app.publicacion_servicio.obtener_publicaciones()
     except Exception as e:
         abort(500, f"Error al obtener publicaciones: {e}")
 
@@ -51,7 +49,7 @@ def foro():
         return redirect(url_for('usuario_rutas.login'))
     
     try:
-        publicaciones = PublicacionService.obtener_publicaciones()
+        publicaciones = current_app.publicacion_servicio.obtener_publicaciones()
     except Exception as e:
         abort(500, f"Error al obtener publicaciones: {e}")
 
@@ -60,7 +58,7 @@ def foro():
 @publicacion_rutas.route('/<int:publicacion_id>', methods=['GET'])
 def ver_publicacion(publicacion_id):
 
-    publicacion = PublicacionService.obtener_publicacion_o_404(publicacion_id)
+    publicacion = current_app.publicacion_servicio.obtener_publicacion_o_404(publicacion_id)
     return render_template('publicacion_detalle.html', publicacion=publicacion)
 
 @publicacion_rutas.route('/<int:publicacion_id>/comentarios', methods=['POST'])
@@ -73,6 +71,6 @@ def crear_comentario(publicacion_id):
     if not contenido:
         return redirect(url_for('publicacion_rutas.ver_publicacion', publicacion_id=publicacion_id, _anchor='comments'))
 
-    PublicacionService.agregar_comentario(publicacion_id, usuario_id, contenido)
+    current_app.publicacion_servicio.agregar_comentario(publicacion_id, usuario_id, contenido)
 
     return redirect(url_for('publicacion_rutas.ver_publicacion', publicacion_id=publicacion_id, _anchor='comments'))

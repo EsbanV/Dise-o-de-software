@@ -1,9 +1,4 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, session
-from servicios.transaccion_servicio import TransaccionServicio
-from servicios.cuenta_bancaria_servicio import CuentaBancariaServicio
-from servicios.categoria_servicio import CategoriaServicio
-from modelos.categoria import TipoCategoria 
-
+from flask import Blueprint, request, render_template, redirect, url_for, flash, session, current_app
 transaccion_rutas = Blueprint('transaccion_rutas', __name__)
 
 @transaccion_rutas.route('/transacciones', methods=['GET', 'POST'])
@@ -13,23 +8,18 @@ def registrar_transaccion():
         flash('Necesitas iniciar sesión para registrar transacciones.', 'warning')
         return redirect(url_for('usuario_rutas.login'))
 
-    cuentas = CuentaBancariaServicio.obtener_cuentas(usuario_id)
-
+    cuentas = current_app.cuenta_bancaria_servicio.obtener_cuentas(usuario_id)
     cuenta_id = request.args.get('cuenta_id', type=int)
-    categorias = []
-
-    if cuenta_id:
-        categorias = CategoriaServicio.obtener_categorias(cuenta_id)
+    categorias = current_app.categoria_servicio.obtener_categorias(cuenta_id) if cuenta_id else []
 
     if request.method == 'POST':
-        cuenta_id = int(request.form.get('cuenta_id'))
-        categoria_id = int(request.form.get('categoria_id'))
+        cuenta_id = request.form.get('cuenta_id')
+        categoria_id = request.form.get('categoria_id')
         descripcion = request.form.get('descripcion')
-        monto = float(request.form.get('monto'))
+        monto = request.form.get('monto')
 
         try:
-            TransaccionServicio.registrar_transaccion(cuenta_id, categoria_id, descripcion, monto)
-            print("pase la ruta")
+            current_app.transaccion_servicio.registrar_transaccion(cuenta_id, categoria_id, descripcion, monto)
             flash('Transacción registrada correctamente.', 'success')
         except Exception as e:
             flash(f'Error al registrar la transacción: {str(e)}', 'danger')
