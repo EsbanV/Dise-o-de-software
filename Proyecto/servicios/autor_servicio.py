@@ -13,15 +13,15 @@ class AutorService:
     author_observers = [NotificationObserver()]
 
     
-    def suscribir(self, subscriber_id: int, autor_id: int):
+    def suscribirse_autor(self, subscriber_id: int, autor_id: int):
         if subscriber_id == autor_id:
             abort(400, "No puedes suscribirte a ti mismo")
         suscripcion = SuscripcionAutor.query.get((subscriber_id, autor_id))
         if suscripcion:
             return suscripcion
         
-        suscriptor = self.usuario_servicio.obtener_usuario_activo_por_id(subscriber_id)
-        autor = self.usuario_servicio.obtener_usuario_activo_por_id(autor_id)
+        suscriptor = self.usuario_servicio.obtener_usuario_activo(subscriber_id)
+        autor = self.usuario_servicio.obtener_usuario_activo(autor_id)
 
         suscripcion = SuscripcionAutor(subscriber_id=subscriber_id, autor_id=autor_id)
         self.repositorio.agregar(suscripcion)
@@ -46,7 +46,7 @@ class AutorService:
         return suscripcion
 
     
-    def desuscribir(self, subscriber_id: int, autor_id: int):
+    def desuscribirse_autor(self, subscriber_id: int, autor_id: int):
 
         suscripcion = SuscripcionAutor.query.get((subscriber_id, autor_id))
         if not suscripcion:

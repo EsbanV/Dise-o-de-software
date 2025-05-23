@@ -23,12 +23,11 @@ def crear_categoria():
         cuenta_id = int(data.get("cuenta_id"))
         presupuesto = data.get("presupuesto")
 
-        nueva_categoria = current_app.categoria_servicio.crear_categoria(nombre, tipo, presupuesto, cuenta_id)
+        nueva_categoria = current_app.categoria_facade.crear_categoria(nombre, tipo, presupuesto, cuenta_id)
         return jsonify({"success": True, "id": nueva_categoria.id, "nombre": nueva_categoria.nombre}), 201
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 400
-
 
 @api_rutas.route('/cuentas', methods=['POST'])
 @login_requerido_api
@@ -49,7 +48,7 @@ def crear_cuenta_json():
     if not nombre or not usuario_id:
         return jsonify({"error": "Faltan campos obligatorios"}), 400
 
-    cuenta = current_app.cuenta_bancaria_servicio.crear_cuenta(nombre, saldo_inicial, usuario_id)
+    cuenta = current_app.cuenta_bancaria_facade.crear_cuenta(nombre, saldo_inicial, usuario_id)
     return jsonify({
         "mensaje": "Cuenta creada correctamente",
         "cuenta": {
@@ -71,7 +70,8 @@ def obtener_categorias():
         print("❌ Falta cuenta_id")
         return jsonify({"error": "Falta el ID de la cuenta"}), 400
 
-    categorias = current_app.categoria_servicio.obtener_categorias_filtradas(cuenta_id, tipo)
+    categorias = current_app.categoria_facade.obtener_categorias_filtradas(cuenta_id, tipo)
+    print("✅ Categorías obtenidas:", categorias)
 
     data = [
         {
@@ -95,21 +95,20 @@ def registrar_transaccion_api():
     monto = data.get("monto")
     descripcion = data.get("descripcion", "")
 
-    current_app.transaccion_servicio.registrar_transaccion(cuenta_id, categoria_id, descripcion, monto)
+    current_app.transaccion_facade.registrar_transaccion(cuenta_id, categoria_id, descripcion, monto)
 
-    cuenta = current_app.cuenta_bancaria_servicio.obtener_cuenta_por_id(cuenta_id)
+    cuenta = current_app.cuenta_bancaria_facade.obtener_cuenta_por_id(cuenta_id)
 
     return jsonify({
         "mensaje": "Transacción registrada",
         "nuevo_saldo": cuenta.saldo
     }), 201
 
-
 @api_rutas.route('/api/graficos', methods=['GET'])
 @login_requerido_api
 def obtener_datos_graficos_api():
     usuario_id = session.get("usuario_id")
-    transacciones = current_app.grafico_servicio.obtener_datos_crudos(usuario_id)
+    transacciones = current_app.grafico_facade.obtener_datos_crudos(usuario_id)
 
     ingresos, gastos = [], []
     gastos_cat, ingresos_cat, historico = {}, {}, {}
@@ -144,4 +143,3 @@ def obtener_datos_graficos_api():
             "balance_neto": sum(ingresos) - sum(gastos)
         }
     })
-

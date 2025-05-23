@@ -10,6 +10,10 @@ class CategoriaServicio:
         self.presupuesto_servicio = presupuesto_servicio
 
     def crear_categoria(self, nombre, tipo, presupuesto, cuenta_id):
+        categorias = self.repositorio.obtener_con_filtro(Categoria, [Categoria.cuenta_id == cuenta_id])
+        if len(categorias) > 8:
+            raise ValueError("No puedes tener más de 8 categorías en esta cuenta.")
+
         if not validar_nombre(nombre):
             raise ValueError("Nombre de categoría inválido")  
 
@@ -62,10 +66,8 @@ class CategoriaServicio:
         if not categoria:
             logging.warning("Intento de eliminar categoría inexistente: ID %s", categoria_id)
             return False
-        print("tengo algo")
 
         try:
-            print("ostia me elimino")
             self.repositorio.eliminar(categoria)
             logging.info("Categoría eliminada: ID %s", categoria_id)
             return True
@@ -74,7 +76,6 @@ class CategoriaServicio:
             raise e
 
     def obtener_categorias_por_usuario(self, usuario_id):
-
         cuentas = self.repositorio.obtener_con_filtro(CuentaBancaria, [CuentaBancaria.usuario_id == usuario_id])
         categorias = []
         for cuenta in cuentas:

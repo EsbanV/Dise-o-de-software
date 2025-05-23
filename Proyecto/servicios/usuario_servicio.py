@@ -17,7 +17,7 @@ class UsuarioServicio:
         self.transaccion_servicio = transaccion_servicio
 
     
-    def obtener_usuario_activo_por_id(self, usuario_id):
+    def obtener_usuario_activo(self, usuario_id):
         return self.repositorio.obtener_unico_con_filtro(Usuario, [Usuario.id == usuario_id, Usuario.activo == True])
 
     

@@ -13,28 +13,22 @@ def home():
     cuenta_id = request.args.get('cuenta_id', type=int)
 
     try:
-        usuario = current_app.usuario_servicio.datos_usuario(usuario_id)
+        usuario = current_app.usuario_facade.datos_usuario(usuario_id)
     except ValueError:
         session.pop('usuario_id', None)
         return redirect(url_for('usuario_rutas.login'))
     
-    notificaciones = current_app.notificacion_servicio.obtener_notificaciones(usuario_id)
+    notificaciones = current_app.comunidad_facade.obtener_notificaciones(usuario_id)
 
 
     if not cuenta_id:
-        cuenta = current_app.repositorio.obtener_unico_con_filtro(
-            CuentaBancaria, 
-            [CuentaBancaria.usuario_id == usuario_id]
-        )
-        if cuenta:
-            cuenta_id = cuenta.id
-        else:
-            cuenta_id = None
+        cuenta = current_app.cuenta_bancaria_facade.obtener_primer_cuenta(usuario_id)
+        cuenta_id = cuenta.id if cuenta else None
 
     if cuenta_id:
-        resumen = current_app.usuario_servicio.obtener_resumen(usuario_id, cuenta_id)
-        datos_grafico = current_app.grafico_servicio.obtener_datos_crudos(cuenta_id)
-        grafico_gastos_categoria = current_app.grafico_servicio.obtener_datos_categorias_gasto(cuenta_id)
+        resumen = current_app.usuario_facade.obtener_resumen(usuario_id, cuenta_id)
+        datos_grafico = current_app.grafico_facade.obtener_datos_crudos(cuenta_id)
+        grafico_gastos_categoria = current_app.grafico_facade.obtener_datos_categorias_gasto(cuenta_id)
     else:
         resumen = {'cuentas': [], 'cuenta': None, 'categorias': [], 'total_ingresos': 0, 'total_gastos': 0}
         datos_grafico = {'ingresos': 0, 'gastos': 0, 'balance_neto': 0}

@@ -24,7 +24,7 @@ def crear_publicacion():
                                titulo=titulo,
                                contenido=contenido)
 
-    current_app.publicacion_servicio.crear_publicacion(usuario_id, titulo, contenido)
+    current_app.comunidad_facade.crear_publicacion(usuario_id, titulo, contenido)
 
     return redirect(url_for('publicacion_rutas.foro'))
 
@@ -35,7 +35,7 @@ def listar_publicaciones():
         return redirect(url_for('usuario_rutas.login'))
 
     try:
-        publicaciones = current_app.publicacion_servicio.obtener_publicaciones()
+        publicaciones = current_app.comunidad_facade.obtener_publicaciones()
     except Exception as e:
         abort(500, f"Error al obtener publicaciones: {e}")
 
@@ -49,7 +49,7 @@ def foro():
         return redirect(url_for('usuario_rutas.login'))
     
     try:
-        publicaciones = current_app.publicacion_servicio.obtener_publicaciones()
+        publicaciones = current_app.comunidad_facade.obtener_publicaciones()
     except Exception as e:
         abort(500, f"Error al obtener publicaciones: {e}")
 
@@ -58,7 +58,7 @@ def foro():
 @publicacion_rutas.route('/<int:publicacion_id>', methods=['GET'])
 def ver_publicacion(publicacion_id):
 
-    publicacion = current_app.publicacion_servicio.obtener_publicacion_o_404(publicacion_id)
+    publicacion = current_app.comunidad_facade.obtener_publicacion(publicacion_id)
     return render_template('publicacion_detalle.html', publicacion=publicacion)
 
 @publicacion_rutas.route('/<int:publicacion_id>/comentarios', methods=['POST'])
@@ -71,6 +71,6 @@ def crear_comentario(publicacion_id):
     if not contenido:
         return redirect(url_for('publicacion_rutas.ver_publicacion', publicacion_id=publicacion_id, _anchor='comments'))
 
-    current_app.publicacion_servicio.agregar_comentario(publicacion_id, usuario_id, contenido)
+    current_app.comunidad_facade.agregar_comentario(publicacion_id, usuario_id, contenido)
 
     return redirect(url_for('publicacion_rutas.ver_publicacion', publicacion_id=publicacion_id, _anchor='comments'))

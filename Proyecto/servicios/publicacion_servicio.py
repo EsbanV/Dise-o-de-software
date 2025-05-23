@@ -14,7 +14,7 @@ class PublicacionService:
     
     
     def crear_publicacion(self, usuario_id: int, titulo: str, contenido: str) -> Publicacion:
-        usuario = self.usuario_servicio.obtener_usuario_activo_por_id(usuario_id)
+        usuario = self.usuario_servicio.obtener_usuario_activo(usuario_id)
         if not usuario:
             abort(400, description="El usuario está desactivado")
 
@@ -37,7 +37,7 @@ class PublicacionService:
         if not publicacion:
             abort(404, description="Publicación no encontrada")
 
-        usuario = self.usuario_servicio.obtener_usuario_activo_por_id(usuario_id)
+        usuario = self.usuario_servicio.obtener_usuario_activo(usuario_id)
         comentario = Comentario(contenido=contenido, usuario_id=usuario_id, publicacion_id=publicacion_id)
         try:
             self.repositorio.agregar(comentario)

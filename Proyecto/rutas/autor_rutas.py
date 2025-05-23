@@ -9,7 +9,7 @@ def suscribir_autor(autor_id):
         return redirect(url_for('usuario_rutas.login'))
 
     try:
-        current_app.autor_servicio.suscribir(subscriber_id, autor_id)
+        current_app.comunidad_facade.suscribirse_autor(subscriber_id, autor_id)
     except Exception as e:
         abort(400, str(e))
 
@@ -27,7 +27,7 @@ def desuscribir_autor(autor_id):
         return redirect(url_for('usuario_rutas.login'))
 
     try:
-        current_app.autor_servicio.desuscribir(subscriber_id, autor_id)
+        current_app.comunidad_facade.desuscribirse_autor(subscriber_id, autor_id)
     except Exception as e:
         abort(400, str(e))
 

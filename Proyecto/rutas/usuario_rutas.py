@@ -14,7 +14,7 @@ def registrar_usuario():
             return render_template('registro.html')
         
         try:
-            current_app.usuario_servicio.registrar_usuario(nombre, correo, password)
+            current_app.usuario_facade.registrar_usuario(nombre, correo, password)
             flash('Usuario registrado exitosamente.', 'success')
             return redirect(url_for('usuario_rutas.login'))
         except Exception as e:
@@ -30,7 +30,7 @@ def login():
         password = request.form.get('password')
         
         try:
-            usuario = current_app.usuario_servicio.iniciar_sesion(correo, password)
+            usuario = current_app.usuario_facade.iniciar_sesion(correo, password)
         
             if usuario:
                 session['usuario_id'] = usuario.id
