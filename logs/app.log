@@ -30,3 +30,6 @@
 2025-05-24 20:09:48,545 INFO: Inicialización de logs completa. [en c:\Users\colin\OneDrive\Escritorio\proyecto diseño soft\Dise-o-de-software\Proyecto\utilidades\logging.py:20]
 2025-05-24 20:10:01,380 ERROR: Error al registrar usuario: Contraseña inválida [en c:\Users\colin\OneDrive\Escritorio\proyecto diseño soft\Dise-o-de-software\Proyecto\rutas\usuario_rutas.py:21]
 2025-05-24 20:10:14,319 ERROR: Error al registrar usuario: Contraseña inválida [en c:\Users\colin\OneDrive\Escritorio\proyecto diseño soft\Dise-o-de-software\Proyecto\rutas\usuario_rutas.py:21]
+2025-05-24 20:11:05,332 INFO: Inicialización de logs completa. [en c:\Users\colin\OneDrive\Escritorio\proyecto diseño soft\Dise-o-de-software\Proyecto\utilidades\logging.py:20]
+2025-05-24 20:11:09,484 INFO: Inicialización de logs completa. [en c:\Users\colin\OneDrive\Escritorio\proyecto diseño soft\Dise-o-de-software\Proyecto\utilidades\logging.py:20]
+2025-05-24 20:11:30,231 ERROR: Error al registrar usuario: Contraseña inválida [en c:\Users\colin\OneDrive\Escritorio\proyecto diseño soft\Dise-o-de-software\Proyecto\rutas\usuario_rutas.py:21]
