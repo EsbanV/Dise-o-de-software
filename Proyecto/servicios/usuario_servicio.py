@@ -10,22 +10,22 @@ from builder.usuario_builder import UsuarioBuilder
 
 class UsuarioServicio:
 
-    def __init__(self, repositorio, cuenta_bancaria_servicio, categoria_servicio, transaccion_servicio):
-        self.repositorio = repositorio
+    def __init__(self, transaccion_repositorio, cuenta_bancaria_servicio, categoria_servicio, transaccion_servicio):
+        self.transaccion_repositorio = transaccion_repositorio
         self.cuenta_bancaria_servicio = cuenta_bancaria_servicio
         self.categoria_servicio = categoria_servicio
         self.transaccion_servicio = transaccion_servicio
 
     
     def obtener_usuario_activo(self, usuario_id):
-        return self.repositorio.obtener_unico_con_filtro(Usuario, [Usuario.id == usuario_id, Usuario.activo == True])
+        return self.transaccion_repositorio.obtener_unico_con_filtro(Usuario, [Usuario.id == usuario_id, Usuario.activo == True])
 
     
     def registrar_usuario(self, nombre, correo, contrasena):
 
         validar_datos_usuario(nombre, correo, contrasena)
 
-        if self.repositorio.obtener_con_filtro(Usuario, [Usuario.correo == correo]):
+        if self.transaccion_repositorio.obtener_con_filtro(Usuario, [Usuario.correo == correo]):
             logging.error("El correo ya está en uso: %s", correo)
             raise ValueError("El correo ya está en uso")
         
@@ -40,7 +40,7 @@ class UsuarioServicio:
                     .build()
                   )
         try:
-            self.repositorio.agregar(usuario)
+            self.transaccion_repositorio.agregar(usuario)
             logging.info("Usuario creado correctamente: %s", correo)
         except Exception as e:
             logging.error("Error al crear usuario %s: %s", correo, e)
@@ -49,7 +49,7 @@ class UsuarioServicio:
 
     
     def iniciar_sesion(self, correo, contrasena):
-        usuario = self.repositorio.obtener_unico_con_filtro(Usuario, [Usuario.correo == correo, Usuario.activo == True])
+        usuario = self.transaccion_repositorio.obtener_unico_con_filtro(Usuario, [Usuario.correo == correo, Usuario.activo == True])
         if usuario and verificar_contrasena(usuario.contrasena, contrasena):
             logging.info("Inicio de sesión exitoso para: %s", correo)
             return usuario
@@ -59,7 +59,7 @@ class UsuarioServicio:
 
     
     def actualizar_usuario(self, usuario_id, nombre=None, correo=None, contrasena=None):
-        usuario = self.repositorio.obtener_unico_con_filtro(Usuario, [Usuario.id == usuario_id, Usuario.activo == True])
+        usuario = self.transaccion_repositorio.obtener_unico_con_filtro(Usuario, [Usuario.id == usuario_id, Usuario.activo == True])
         if not usuario:
             logging.warning("Usuario no encontrado para actualizar: ID %s", usuario_id)
             return None
@@ -76,7 +76,7 @@ class UsuarioServicio:
             usuario.contrasena = encriptar_contrasena(contrasena)
 
         try:
-            self.repositorio.actualizar(usuario)
+            self.transaccion_repositorio.actualizar(usuario)
             logging.info("Usuario actualizado: ID %s", usuario_id)
         except Exception as e:
             logging.error("Error al actualizar usuario %s: %s", usuario_id, e)
@@ -85,11 +85,11 @@ class UsuarioServicio:
 
     
     def eliminar_usuario(self, usuario_id):
-        usuario = Usuario.query.get(usuario_id)
+        usuario = self.transaccion_repositorio.obtener_por_id(Usuario, usuario_id)
         if usuario:
             try:
                 usuario.activo = False
-                self.repositorio.actualizar(usuario)
+                self.transaccion_repositorio.actualizar(usuario)
                 logging.info("Usuario eliminado: ID %s", usuario_id)
             except Exception as e:
                 logging.error("Error al eliminar usuario %s: %s", usuario_id, e)
@@ -98,9 +98,10 @@ class UsuarioServicio:
         logging.warning("Intento de eliminar usuario inexistente: ID %s", usuario_id)
         return False
 
+
     
     def datos_usuario(self, usuario_id):
-        usuario = self.repositorio.obtener_unico_con_filtro(Usuario, [Usuario.id == usuario_id, Usuario.activo == True])
+        usuario = self.transaccion_repositorio.obtener_unico_con_filtro(Usuario, [Usuario.id == usuario_id, Usuario.activo == True])
         if usuario:
             return usuario
         else:
@@ -109,7 +110,7 @@ class UsuarioServicio:
 
     
     def obtener_resumen(self, usuario_id, cuenta_id=None):
-        usuario = self.repositorio.obtener_unico_con_filtro(Usuario, [Usuario.id == usuario_id, Usuario.activo == True])
+        usuario = self.transaccion_repositorio.obtener_unico_con_filtro(Usuario, [Usuario.id == usuario_id, Usuario.activo == True])
         if not usuario:
             raise ValueError("Usuario no encontrado o desactivado")
 
@@ -125,9 +126,8 @@ class UsuarioServicio:
 
         cuenta = next((c for c in cuentas if c.id == cuenta_id), cuentas[0])
 
-        transacciones = Transaccion.query.options(
-            joinedload(Transaccion.categoria)
-        ).filter_by(cuenta_bancaria_id=cuenta.id).all()
+        # Usar el servicio de transacciones (que a su vez usa el repo específico)
+        transacciones = self.transaccion_servicio.obtener_transacciones_por_cuenta_con_categoria(cuenta.id)
 
         total_ingresos = sum(
             t.monto for t in transacciones if t.categoria and t.categoria.tipo == TipoCategoria.INGRESO
@@ -152,4 +152,3 @@ class UsuarioServicio:
             "total_gastos": total_gastos,
             "categorias": categorias
         }
-    

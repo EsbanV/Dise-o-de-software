@@ -12,22 +12,27 @@ from servicios.autor_servicio import AutorService
 from servicios.notificacion_servicio import NotificacionService
 from servicios.grafico_servicio import GraficoServicio
 from servicios.publicacion_servicio import PublicacionService
+from servicios.transaccion_base_datos import TransaccionRepositorio
+from servicios.exportacion_servicio import ExportacionServicio
+from configuracion.configuracion import db
 
 from servicios.FinanzasFacade import (UsuarioFacade, CuentaBancariaFacade, CategoriaFacade,
                                       PresupuestoFacade, TransaccionFacade, 
-                                      GraficoFacade, ComunidadFacade
+                                      GraficoFacade, ComunidadFacade, ExportacionFacade
                                      )
 
 def create_app():
     app = crear_app()
 
-    repositorio = ServicioBaseDatos()
+    repositorio = ServicioBaseDatos(db.session)
+    transaccion_repositorio = TransaccionRepositorio(db.session)
     
     presupuesto_servicio = PresupuestoServicio(repositorio)
+    exportacion_servicio = ExportacionServicio(transaccion_repositorio)
     categoria_servicio = CategoriaServicio(repositorio, presupuesto_servicio)
     cuenta_bancaria_servicio = CuentaBancariaServicio(repositorio, categoria_servicio)
-    transaccion_servicio = TransaccionServicio(repositorio)
-    usuario_servicio = UsuarioServicio(repositorio, cuenta_bancaria_servicio, categoria_servicio, transaccion_servicio)
+    transaccion_servicio = TransaccionServicio(transaccion_repositorio)
+    usuario_servicio = UsuarioServicio(transaccion_repositorio, cuenta_bancaria_servicio, categoria_servicio, transaccion_servicio)
     autor_servicio = AutorService(repositorio, usuario_servicio)
     publicacion_servicio = PublicacionService(repositorio, usuario_servicio)
     grafico_servicio = GraficoServicio(repositorio)
@@ -41,6 +46,7 @@ def create_app():
     app.transaccion_facade = TransaccionFacade(transaccion_servicio)
     app.grafico_facade = GraficoFacade(grafico_servicio)
     app.comunidad_facade = ComunidadFacade(autor_servicio, publicacion_servicio, notificacion_servicio)
+    app.exportacion_facade = ExportacionFacade(exportacion_servicio)
 
     from rutas.cuenta_bancaria_rutas import cuenta_rutas
     from rutas.categoria_rutas import categoria_rutas

@@ -1,46 +1,40 @@
-from configuracion.extensiones import db
-
 class ServicioBaseDatos:
-    @staticmethod
-    def agregar(instancia):
+    def __init__(self, session):
+        self.session = session
+
+    def agregar(self, instancia):
         try:
-            db.session.add(instancia)
-            db.session.commit()
+            self.session.add(instancia)
+            self.session.commit()
         except Exception as e:
-            db.session.rollback()
+            self.session.rollback()
             raise e
 
-    @staticmethod
-    def actualizar():
+    def actualizar(self):
         try:
-            db.session.commit()
+            self.session.commit()
         except Exception as e:
-            db.session.rollback()
+            self.session.rollback()
             raise e
 
-    @staticmethod
-    def eliminar(instancia):
+    def eliminar(self, instancia):
         try:
-            db.session.delete(instancia)
-            db.session.commit()
+            self.session.delete(instancia)
+            self.session.commit()
         except Exception as e:
-            db.session.rollback()
+            self.session.rollback()
             raise e
 
-    @staticmethod
-    def obtener_todos(modelo):
-        return modelo.query.all()
+    def obtener_todos(self, modelo):
+        return self.session.query(modelo).all()
 
-    @staticmethod
-    def obtener_por_id(modelo, id_):
-        return modelo.query.get(id_)
-    
-    @staticmethod
-    def obtener_con_filtro(modelo, condiciones=None):
+    def obtener_por_id(self, modelo, id_):
+        return self.session.query(modelo).get(id_)
+
+    def obtener_con_filtro(self, modelo, condiciones=None):
         condiciones = condiciones or []
-        return modelo.query.filter(*condiciones).all()
-    
-    @staticmethod
-    def obtener_unico_con_filtro(modelo, condiciones=None):
+        return self.session.query(modelo).filter(*condiciones).all()
+
+    def obtener_unico_con_filtro(self, modelo, condiciones=None):
         condiciones = condiciones or []
-        return modelo.query.filter(*condiciones).first()
+        return self.session.query(modelo).filter(*condiciones).first()

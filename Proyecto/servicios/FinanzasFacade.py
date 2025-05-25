@@ -148,3 +148,10 @@ class ComunidadFacade:
 
     def marcar_notificacion_leida(self, notificacion_id):
         return self.notificacion_servicio.marcar_notificacion_leida(notificacion_id)
+
+class ExportacionFacade:
+    def __init__(self, exportacion_servicio):
+        self.exportacion_servicio = exportacion_servicio
+
+    def exportar_excel(self, usuario_id, cuenta_id):
+        return self.exportacion_servicio.exportar_excel(usuario_id, cuenta_id)
