@@ -9,9 +9,9 @@ from utilidades.validaciones_macro import validar_datos_transaccion
 from builder.transaccion_builder import TransaccionBuilder
 
 class TransaccionServicio:
-    def __init__(self, transaccion_repositorio):
+    def __init__(self, transaccion_repositorio, categoria_servicio):
         self.transaccion_repositorio = transaccion_repositorio
-
+        self.categoria_servicio = categoria_servicio
     def registrar_transaccion(self, cuenta_id, categoria_id, descripcion, monto):
         cuenta, categoria = validar_datos_transaccion(
                                 self.transaccion_repositorio,
@@ -117,3 +117,9 @@ class TransaccionServicio:
     
     def obtener_transacciones_por_cuenta_con_categoria(self, cuenta_id):
         return self.transaccion_repositorio.obtener_por_cuenta_con_categoria(cuenta_id)
+
+
+
+
+
+

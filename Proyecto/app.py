@@ -28,15 +28,16 @@ def create_app():
     transaccion_repositorio = TransaccionRepositorio(db.session)
     
     presupuesto_servicio = PresupuestoServicio(repositorio)
-    exportacion_servicio = ExportacionServicio(transaccion_repositorio)
     categoria_servicio = CategoriaServicio(repositorio, presupuesto_servicio)
     cuenta_bancaria_servicio = CuentaBancariaServicio(repositorio, categoria_servicio)
-    transaccion_servicio = TransaccionServicio(transaccion_repositorio)
+    transaccion_servicio = TransaccionServicio(transaccion_repositorio, categoria_servicio)
     usuario_servicio = UsuarioServicio(transaccion_repositorio, cuenta_bancaria_servicio, categoria_servicio, transaccion_servicio)
     autor_servicio = AutorService(repositorio, usuario_servicio)
     publicacion_servicio = PublicacionService(repositorio, usuario_servicio)
     grafico_servicio = GraficoServicio(repositorio)
     notificacion_servicio = NotificacionService(repositorio)
+    exportacion_servicio = ExportacionServicio(transaccion_repositorio, cuenta_bancaria_servicio, categoria_servicio, transaccion_servicio)
+
     
     app.repositorio = repositorio
     app.usuario_facade = UsuarioFacade(usuario_servicio)

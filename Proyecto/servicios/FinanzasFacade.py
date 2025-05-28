@@ -105,6 +105,9 @@ class TransaccionFacade:
 
     def eliminar_transaccion(self, transaccion_id):
         return self.transaccion_servicio.eliminar_transaccion(transaccion_id)
+    
+    def transaccion_duplicada(self, cuenta_id, categoria_id, descripcion, monto, fecha):
+        return self.transaccion_servicio.transaccion_duplicada(cuenta_id, categoria_id, descripcion, monto, fecha)
 
 class GraficoFacade:
     def __init__(self, grafico_servicio):
@@ -155,3 +158,6 @@ class ExportacionFacade:
 
     def exportar_excel(self, usuario_id, cuenta_id):
         return self.exportacion_servicio.exportar_excel(usuario_id, cuenta_id)
+
+    def importar_excel(self, ruta_excel, usuario_id, cuenta_id):
+        return self.exportacion_servicio.importar_excel(ruta_excel, usuario_id, cuenta_id)

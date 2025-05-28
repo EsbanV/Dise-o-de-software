@@ -100,3 +100,4 @@ def alerta_saldo_insuficiente(saldo_final):
     if saldo_final <= 0:
         return "¡Atención! El saldo de esta cuenta ha quedado en cero o negativo. Revisa que tus datos sean correctos."
     return None
+

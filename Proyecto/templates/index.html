@@ -102,6 +102,17 @@
     
       <section class="recent-transactions">
         <div class="card">
+            <form id="formImportarExcel" enctype="multipart/form-data" style="display: flex; gap: 8px;">
+                <select name="cuenta_id" required>
+              {% for c in cuentas %}
+                <option value="{{ c.id }}" {% if c.id == cuenta.id %}selected{% endif %}>
+                  {{ c.nombre }}
+                </option>
+              {% endfor %}
+                <input type="file" name="archivo_excel" accept=".xlsx,.xls,.csv" required>
+                <button type="submit">Importar Excel</button>
+            </form>
+
           <button class="export-btn" onclick="exportarExcel()">
             <i class="fas fa-file-excel"></i> Exportar a Excel
           </button>
