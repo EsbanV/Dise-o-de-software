@@ -1,9 +1,9 @@
 from modelos.publicacion import Publicacion
 from modelos.comentario import Comentario
-from observers.observer import NotificationObserver
 from flask import abort
 from better_profanity import profanity
 from utilidades.validaciones_macro import cargar_palabras_ofensivas
+
 
 profanity.load_censor_words()
 cargar_palabras_ofensivas("configuracion/palabras_ofensivas.txt")
@@ -12,13 +12,11 @@ LIMITE_CARACTERES_PUBLICACION = 500
 LIMITE_CARACTERES_TITULO = 100
 class PublicacionService:
 
-    def __init__(self, repositorio, usuario_servicio):
+    def __init__(self, repositorio, usuario_servicio,comment_observers=None, publication_observers=None):
         self.repositorio = repositorio
         self.usuario_servicio = usuario_servicio
-
-
-    comment_observers = [NotificationObserver()]
-    publication_observers  = [NotificationObserver()]
+        self.comment_observers = comment_observers or []
+        self.publication_observers = publication_observers or []
 
     def comentario_valido(self, texto):
         return not profanity.contains_profanity(texto)
@@ -41,7 +39,9 @@ class PublicacionService:
         self.repositorio.agregar(publicacion)
 
         texto = f"{publicacion.usuario.nombre} acaba de publicar «{publicacion.titulo}»"
-        for observer in type(self).publication_observers:
+        print("[SERVICIO] Notificando observers de comentario")
+        for observer in self.publication_observers:  # <-- cambio aquí
+            print(f"[SERVICIO] Enviando a observer: {observer}")
             observer.update(publicacion, evento='new_post', mensaje={'mensaje': texto})
 
         return publicacion
@@ -52,6 +52,7 @@ class PublicacionService:
 
     
     def agregar_comentario(self, publicacion_id: int, usuario_id: int, contenido: str):
+        print("[SERVICIO] agregar_comentario ejecutado")
         if len(contenido) > LIMITE_CARACTERES_PUBLICACION:
             raise ValueError(f"La publicación no puede superar los {LIMITE_CARACTERES_PUBLICACION} caracteres.")
         if not self.comentario_valido(contenido):
@@ -66,7 +67,7 @@ class PublicacionService:
         try:
             self.repositorio.agregar(comentario)
             texto = f"{usuario.nombre} comentó en «{publicacion.titulo}»"
-            for obs in type(self).comment_observers:
+            for obs in self.comment_observers:  # <-- cambio aquí
                 obs.update(publicacion, evento='comment', mensaje={'mensaje': texto})
         except Exception:
             raise

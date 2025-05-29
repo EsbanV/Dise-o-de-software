@@ -19,7 +19,7 @@ def registrar_transaccion():
         monto = request.form.get('monto')
 
         try:
-            current_app.transaccion_facade.registrar_transaccion(cuenta_id, categoria_id, descripcion, monto)
+            current_app.transaccion_facade.registrar_transaccion(cuenta_id, categoria_id, descripcion, monto, fecha=None)
             flash('Transacción registrada correctamente.', 'success')
         except Exception as e:
             flash(f'Error al registrar la transacción: {str(e)}', 'danger')

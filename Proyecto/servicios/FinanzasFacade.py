@@ -1,4 +1,6 @@
 
+
+from datetime import datetime
 class UsuarioFacade:
     def __init__(self, usuario_servicio):
         self.usuario_servicio = usuario_servicio
@@ -88,8 +90,10 @@ class TransaccionFacade:
     def __init__(self, transaccion_servicio):
         self.transaccion_servicio = transaccion_servicio
 
-    def registrar_transaccion(self, cuenta_id, categoria_id, descripcion, monto):
-        return self.transaccion_servicio.registrar_transaccion(cuenta_id, categoria_id, descripcion, monto)
+    def registrar_transaccion(self, cuenta_id, categoria_id, descripcion, monto, fecha):
+        if fecha is None:
+            fecha = datetime.now()
+        return self.transaccion_servicio.registrar_transaccion(cuenta_id, categoria_id, descripcion, monto, fecha)
 
     def obtener_transacciones_por_cuenta(self, cuenta_id):
         return self.transaccion_servicio.obtener_transacciones_por_cuenta(cuenta_id)
@@ -177,6 +181,7 @@ class ComunidadFacade:
         return self.publicacion_servicio.obtener_publicaciones()
 
     def agregar_comentario(self, publicacion_id, usuario_id, contenido):
+        print("[FACHADA] agregar_comentario llamado")
         return self.publicacion_servicio.agregar_comentario(publicacion_id, usuario_id, contenido)
 
     # Notificaciones

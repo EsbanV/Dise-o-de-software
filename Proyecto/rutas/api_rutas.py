@@ -95,7 +95,7 @@ def registrar_transaccion_api():
     monto = data.get("monto")
     descripcion = data.get("descripcion", "")
 
-    current_app.transaccion_facade.registrar_transaccion(cuenta_id, categoria_id, descripcion, monto)
+    current_app.transaccion_facade.registrar_transaccion(cuenta_id, categoria_id, descripcion, monto, fecha=None)
 
     cuenta = current_app.cuenta_bancaria_facade.obtener_cuenta_por_id(cuenta_id)
 

@@ -12,7 +12,7 @@ class TransaccionServicio:
     def __init__(self, transaccion_repositorio, categoria_servicio):
         self.transaccion_repositorio = transaccion_repositorio
         self.categoria_servicio = categoria_servicio
-    def registrar_transaccion(self, cuenta_id, categoria_id, descripcion, monto):
+    def registrar_transaccion(self, cuenta_id, categoria_id, descripcion, monto, fecha):
         cuenta, categoria = validar_datos_transaccion(
                                 self.transaccion_repositorio,
                                 cuenta_id,
@@ -34,6 +34,7 @@ class TransaccionServicio:
                 .cuenta_bancaria_id(cuenta_id)
                 .categoria_id(categoria_id)
                 .descripcion(descripcion)
+                .fecha(fecha)
                 .build()
             )
 
@@ -118,8 +119,25 @@ class TransaccionServicio:
     def obtener_transacciones_por_cuenta_con_categoria(self, cuenta_id):
         return self.transaccion_repositorio.obtener_por_cuenta_con_categoria(cuenta_id)
 
+    def transaccion_duplicada(self, cuenta_id, categoria, descripcion, monto, fecha):
+        desc_norm = (descripcion or "").strip().lower()
+        tipo_str = categoria.tipo.name if hasattr(categoria.tipo, 'name') else str(categoria.tipo)
+        monto_bd = -abs(monto) if tipo_str.upper() == "GASTO" else abs(monto)
+        dia = fecha.date() if hasattr(fecha, 'date') else fecha  # Acepta tanto datetime como date
 
-
-
+        transacciones = self.transaccion_repositorio.obtener_con_filtro(
+            Transaccion,
+            [
+                Transaccion.cuenta_bancaria_id == cuenta_id,
+                Transaccion.categoria_id == categoria.id,
+                Transaccion.monto == monto_bd,
+            ]
+        )
+        for t in transacciones:
+            # Compara sólo la fecha (no la hora) y normaliza la descripción
+            if (getattr(t.fecha, 'date', lambda: t.fecha)() == dia and
+                (t.descripcion or "").strip().lower() == desc_norm):
+                return True
+        return False
 
 

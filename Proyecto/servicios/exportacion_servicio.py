@@ -168,11 +168,28 @@ class ExportacionServicio:
                     except Exception as e:
                         raise ValueError(f"Fila {idx+encabezado_idx+2}: Error al crear la categoría '{nombre_categoria}': {str(e)}")
 
+                    if categoria is None:
+                        # Maneja el error, categoría inexistente
+                        raise ValueError("Categoría no encontrada.")
+                    
+                ya_existe = self.transaccion_servicio.transaccion_duplicada(
+                    cuenta_id=cuenta_id,
+                    categoria=categoria,  # <-- Aquí ahora pasas el objeto, que ya tienes arriba
+                    descripcion=descripcion,
+                    monto=monto,
+                    fecha=fecha
+                )
+                if ya_existe:
+                    errores.append(f"Fila {idx+5}: Duplicado detectado (no se importa de nuevo)")
+                    continue
+
+
                 self.transaccion_servicio.registrar_transaccion(
                     cuenta_id=cuenta_id,
                     categoria_id=categoria.id,
                     descripcion=descripcion,
-                    monto=monto
+                    monto=monto,
+                    fecha=fecha,
                 )
                 importadas += 1
             except Exception as e:

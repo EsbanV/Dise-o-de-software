@@ -1,18 +1,15 @@
 from flask import abort
 from modelos.suscripcion_autor import SuscripcionAutor
-from observers.observer import NotificationObserver
 
 
 class AutorService:
 
-    def __init__(self, repositorio, usuario_servicio):
+    def __init__(self, repositorio, usuario_servicio, confirmation_observers=None, author_observers=None):
         self.repositorio = repositorio
         self.usuario_servicio = usuario_servicio
+        self.confirmation_observers = confirmation_observers or []
+        self.author_observers = author_observers or []
 
-    confirmation_observers = [NotificationObserver()]
-    author_observers = [NotificationObserver()]
-
-    
     def suscribirse_autor(self, subscriber_id: int, autor_id: int):
         if subscriber_id == autor_id:
             abort(400, "No puedes suscribirte a ti mismo")
@@ -27,7 +24,7 @@ class AutorService:
         self.repositorio.agregar(suscripcion)
 
         texto_autor = f"{suscriptor.nombre} te ha seguido"
-        for obs in type(self).author_observers:
+        for obs in self.author_observers:
             obs.update(
                 subject=autor,
                 evento='new_subscription_author',
@@ -35,13 +32,16 @@ class AutorService:
             )
 
         texto_subs = f"Te has suscrito a {autor.nombre}"
-        for obs in type(self).confirmation_observers:
+        for obs in self.confirmation_observers:
             obs.update(
                 subject=suscriptor,
                 evento='new_subscription_confirmation',
-                mensaje={'mensaje': texto_subs,
-                         'target_user_id': suscriptor.id}
+                mensaje={
+                    'mensaje': texto_subs,
+                    'target_user_id': suscriptor.id
+                }
             )
+
 
         return suscripcion
 

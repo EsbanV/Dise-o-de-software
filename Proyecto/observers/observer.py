@@ -2,18 +2,22 @@
 
 from configuracion.extensiones import db
 from observers.iObserver import Observer
-from modelos.usuario import Usuario
 from modelos.notificacion import Notificacion
-from servicios.base_datos import ServicioBaseDatos
 from flask import current_app
 
 class NotificationObserver(Observer):
+    def __init__(self, repositorio):
+        self.repositorio = repositorio
+
     def update(self, subject, evento: str, mensaje: dict):
+        print("[OBSERVER] update llamado")
+        print(f"[OBSERVER] publicacion: {subject}, evento: {evento}, mensaje: {mensaje}")
 
         current_app.logger.debug(f"[NotificationObserver] evento={evento}, subject={subject}, mensaje={mensaje}")
 
         if evento == 'comment':
             targets = [subject.usuario_id]
+            print(f"[OBSERVER] Usuarios a notificar: {targets}")
         elif evento == 'new_post':
             targets = [sa.subscriber_id for sa in subject.usuario.seguidores]
 
@@ -25,11 +29,13 @@ class NotificationObserver(Observer):
         else:
             return
 
+        print(f"[OBSERVER] Notificación a guardar:")
         errores = []
         for uid in targets:
             noti = Notificacion(mensaje=mensaje['mensaje'], usuario_id=uid)
             try:
-                ServicioBaseDatos.agregar(noti)
+                self.repositorio.agregar(noti)
+                print("[OBSERVER] Notificación guardada")
             except Exception as e:
                 errores.append((uid, str(e)))
 
