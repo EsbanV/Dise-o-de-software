@@ -22,16 +22,6 @@
         <div class="form-container">
             <h2>Iniciar Sesión</h2>
 
-            {% with mensajes = get_flashed_messages(with_categories=true) %}
-                {% if mensajes %}
-                    <ul class="flashes">
-                        {% for categoria, msg in mensajes %}
-                            <li class="{{ categoria }}">{{ msg }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endwith %}
-
             <form action="{{ url_for('usuario_rutas.login') }}" method="post">
                 <label for="correo">Correo Electrónico</label>
                 <div class="input-field">
