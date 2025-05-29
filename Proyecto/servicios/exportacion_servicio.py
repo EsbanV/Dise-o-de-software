@@ -157,15 +157,16 @@ class ExportacionServicio:
 
                 categoria = categorias_map.get(nombre_categoria)
                 if not categoria:
-                    categoria = self.categoria_servicio.crear_categoria(
-                        nombre=nombre_categoria,
-                        tipo=tipo,
-                        presupuesto=None,
-                        cuenta_id=cuenta_id
-                    )
-                    categorias_map[nombre_categoria] = categoria
-
-                # Si usas hash de duplicados, aquí puedes llamarlo
+                    try:
+                        categoria = self.categoria_servicio.crear_categoria(
+                            nombre=nombre_categoria,
+                            tipo=tipo,
+                            presupuesto=None,
+                            cuenta_id=cuenta_id
+                        )
+                        categorias_map[nombre_categoria] = categoria
+                    except Exception as e:
+                        raise ValueError(f"Fila {idx+encabezado_idx+2}: Error al crear la categoría '{nombre_categoria}': {str(e)}")
 
                 self.transaccion_servicio.registrar_transaccion(
                     cuenta_id=cuenta_id,

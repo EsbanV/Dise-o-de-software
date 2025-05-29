@@ -1,4 +1,4 @@
-from flask import Blueprint, session, request, current_app, send_file, redirect, url_for, flash
+from flask import Blueprint, session, request, current_app, send_file, redirect, url_for, flash, jsonify
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
@@ -24,7 +24,7 @@ def exportar_excel():
         response = send_file(
             output,
             as_attachment=True,
-            download_name=nombre_archivo,  # attachment_filename=... si usas Flask <2.0
+            download_name=nombre_archivo,
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
         print("Response headers:", response.headers)
@@ -39,20 +39,21 @@ def importar_excel():
     cuenta_id = request.form.get('cuenta_id')
     usuario_id = session.get('usuario_id')
 
-    # Validación de presencia
     if not archivo or not cuenta_id or not usuario_id:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"ok": False, "importadas": 0, "errores": ["Faltan datos requeridos."]}), 400
         flash('Faltan datos requeridos.', 'error')
-        return redirect(url_for('index_rutas.home'))  # Ajusta el endpoint de tu dashboard
+        return redirect(url_for('index_rutas.home'))
 
-    # Conversión explícita y control de errores
     try:
         cuenta_id = int(cuenta_id)
         usuario_id = int(usuario_id)
     except (ValueError, TypeError):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"ok": False, "importadas": 0, "errores": ["ID de cuenta o usuario inválido."]}), 400
         flash('ID de cuenta o usuario inválido.', 'error')
         return redirect(url_for('index_rutas.home'))
 
-    # Guardar archivo temporal
     filename = secure_filename(archivo.filename)
     with tempfile.NamedTemporaryFile(delete=False, suffix=filename) as tmp:
         archivo.save(tmp.name)
@@ -63,10 +64,12 @@ def importar_excel():
     finally:
         os.remove(ruta_temporal)
 
-    if resultado["ok"]:
-        flash(f'Importación exitosa: {resultado["importadas"]} registros.', 'success')
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify(resultado)
     else:
-        # Junta errores en una sola cadena si hay muchos
-        mensaje_error = ' '.join(resultado["errores"]) if resultado.get("errores") else 'Ocurrió un error inesperado.'
-        flash(f'Errores en la importación: {mensaje_error}', 'error')
-    return redirect(url_for('index_rutas.home'))
+        if resultado["ok"]:
+            flash(f'Importación exitosa: {resultado["importadas"]} registros.', 'success')
+        else:
+            mensaje_error = ' '.join(resultado["errores"]) if resultado.get("errores") else 'Ocurrió un error inesperado.'
+            flash(f'Errores en la importación: {mensaje_error}', 'error')
+        return redirect(url_for('index_rutas.home'))

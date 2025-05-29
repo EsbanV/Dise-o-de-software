@@ -23,8 +23,13 @@ def crear_publicacion():
                                error="Faltan datos requeridos",
                                titulo=titulo,
                                contenido=contenido)
-
-    current_app.comunidad_facade.crear_publicacion(usuario_id, titulo, contenido)
+    try:
+        current_app.comunidad_facade.crear_publicacion(usuario_id, titulo, contenido)
+    except Exception as e:
+        return render_template('crear_publicacion.html',
+                               error=f"Error al crear la publicación: {e}",
+                               titulo=titulo,
+                               contenido=contenido)
 
     return redirect(url_for('publicacion_rutas.foro'))
 
@@ -70,7 +75,10 @@ def crear_comentario(publicacion_id):
     contenido = request.form.get('contenido', '').strip()
     if not contenido:
         return redirect(url_for('publicacion_rutas.ver_publicacion', publicacion_id=publicacion_id, _anchor='comments'))
-
-    current_app.comunidad_facade.agregar_comentario(publicacion_id, usuario_id, contenido)
-
+    try:
+        current_app.comunidad_facade.agregar_comentario(publicacion_id, usuario_id, contenido)
+    except ValueError as e:
+            return render_template('publicacion_detalle.html',
+                                publicacion=current_app.comunidad_facade.obtener_publicacion(publicacion_id),
+                                error=str(e))
     return redirect(url_for('publicacion_rutas.ver_publicacion', publicacion_id=publicacion_id, _anchor='comments'))

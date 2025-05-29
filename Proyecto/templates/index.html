@@ -10,109 +10,148 @@
 </head>
 <body>
   <div class="dashboard-container">
+    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="logo">FlaskBank</div>
       <nav class="menu">
-        <a href="{{ url_for('publicacion_rutas.foro') }}"><i class="fa fa-commenting" aria-hidden="true"></i> Foro</a>
-        <a href="{{ url_for('cuenta_rutas.gestionar_cuentas') }}"><i class="fas fas fa-credit-card"></i> Tarjetas</a>
-        <a href="{{ url_for('transaccion_rutas.registrar_transaccion') }}"><i class="fas fa-exchange-alt"></i> Transaccion</a>
+        <a href="{{ url_for('publicacion_rutas.foro') }}"><i class="fa fa-commenting"></i> Foro</a>
+        <a href="{{ url_for('cuenta_rutas.gestionar_cuentas') }}"><i class="fas fa-credit-card"></i> Tarjetas</a>
+        <a href="{{ url_for('transaccion_rutas.registrar_transaccion') }}"><i class="fas fa-exchange-alt"></i> Transacción</a>
         <a href="{{ url_for('usuario_rutas.logout') }}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
       </nav>
     </aside>
 
     <main class="main-content">
+      <!-- Header -->
       <header class="dashboard-header">
         <h2>Hola, {{ usuario.nombre }}. Bienvenido de nuevo!</h2>
         <div class="header-actions">
-           <div class="notification">
-              <a href="#" class="notification-toggle">
-                <i class="fas fa-bell"></i>
-                {% if notificaciones|length > 0 %}
-                  <span class="notification-count">{{ notificaciones|length }}</span>
-                {% endif %}
-              </a>
-              <!-- Opcional: dropdown con mini-vista -->
-              <div class="notification-dropdown">
-                {% for noti in notificaciones[:5] %}
-                  <div class="notification-item">
-                    {{ noti.mensaje|truncate(50) }}
-                    <small>{{ noti.fecha_creacion.strftime('%H:%M') }}</small>
-                  </div>
-                {% else %}
-                  <div class="notification-item empty">No tienes notificaciones</div>
-                {% endfor %}
-                <div class="notification-footer">
-                  <a href="#">Ver todas</a>
+          <div class="notification">
+            <a href="#" class="notification-toggle">
+              <i class="fas fa-bell"></i>
+              {% if notificaciones|length > 0 %}
+                <span class="notification-count">{{ notificaciones|length }}</span>
+              {% endif %}
+            </a>
+            <div class="notification-dropdown">
+              {% for noti in notificaciones[:5] %}
+                <div class="notification-item">
+                  {{ noti.mensaje|truncate(50) }}
+                  <small>{{ noti.fecha_creacion.strftime('%H:%M') }}</small>
                 </div>
+              {% else %}
+                <div class="notification-item empty">No tienes notificaciones</div>
+              {% endfor %}
+              <div class="notification-footer">
+                <a href="#">Ver todas</a>
               </div>
             </div>
-
+          </div>
           <div class="user-profile">
             <img src="{{ url_for('static', filename='img/user_default.png') }}" alt="Usuario">
             <span>{{ usuario.nombre }}</span>
           </div>
         </div>
       </header>
-    
+
       {% if cuenta %}
-      <!-- Mostrar contenido normal si hay cuenta -->
+      <!-- FILTRO Y CARDS -->
       <section class="cards-overview">
-        <div class="card card-altura-unificada">
-          <h3>Total Ingresos</h3>
-          <p class="positive">₡{{ total_ingresos | default(0) | round(2) }}</p>
-        </div>
-        <div class="card card-altura-unificada">
-          <h3>Gastos Totales</h3>
-          <p class="negative">₡{{ total_gastos | default(0) | round(2) }}</p>
-        </div>
-        <div class="card card-altura-unificada">
-          <h3>Tarjeta Activa</h3>
-          <p><strong>{{ cuenta.nombre }}</strong> — ₡{{ cuenta.saldo }}</p>
-          <form class="bank-filter" method="get" action="{{ url_for('index_rutas.home') }}">
-            <select name="cuenta_id" onchange="this.form.submit()">
-              {% for c in cuentas %}
-                <option value="{{ c.id }}" {% if c.id == cuenta.id %}selected{% endif %}>
-                  {{ c.nombre }}
-                </option>
-              {% endfor %}
-            </select>
-          </form>
-        </div>
-        <div class="card graficos-dona">
-          <div class="donut-container">
-            <div class="donut-item">
-              <h4>Gastos (%)</h4>
-              <canvas id="graficoGastos"></canvas>
+        <!-- Filtro -->
+        <form class="filters-form" id="filtroForm">
+          <input type="hidden" name="cuenta_id" id="filtroCuentaId" value="{{ cuenta.id }}">
+          <div class="filters-row">
+            <div class="filter-group">
+              <label for="inputYear">Año</label>
+              <input type="number" id="inputYear" min="2000" max="2100" placeholder="AAAA">
             </div>
-            <div class="donut-item">
-              <h4>Ingresos (%)</h4>
-              <canvas id="graficoIngresos"></canvas>
+            <div class="filter-group">
+              <label for="inputMonth">Mes</label>
+              <input type="number" id="inputMonth" min="1" max="12" placeholder="MM">
+            </div>
+            <div class="filter-group">
+              <label for="inputDay">Día</label>
+              <input type="number" id="inputDay" min="1" max="31" placeholder="DD">
+            </div>
+            <button type="button" id="btnFiltrar" class="filter-btn"><i class="fa fa-filter"></i> Filtrar</button>
+            <button type="button" id="btnLimpiar" class="clear-btn"><i class="fa fa-eraser"></i> Limpiar</button>
+          </div>
+        </form>
+
+        <!-- Cards y dona -->
+        <div class="cards-row">
+          <div class="card card-altura-unificada">
+            <h3>Total Ingresos</h3>
+            <p class="positive">₡{{ total_ingresos | default(0) | round(2) }}</p>
+          </div>
+          <div class="card card-altura-unificada">
+            <h3>Gastos Totales</h3>
+            <p class="negative">₡{{ total_gastos | default(0) | round(2) }}</p>
+          </div>
+          <div class="card card-altura-unificada">
+            <h3>Tarjeta Activa</h3>
+            <p><strong>{{ cuenta.nombre }}</strong> — ₡{{ cuenta.saldo }}</p>
+            <form class="bank-filter" method="get" action="{{ url_for('index_rutas.home') }}">
+              <select name="cuenta_id" onchange="this.form.submit()">
+                {% for c in cuentas %}
+                  <option value="{{ c.id }}" {% if c.id == cuenta.id %}selected{% endif %}>
+                    {{ c.nombre }}
+                  </option>
+                {% endfor %}
+              </select>
+            </form>
+          </div>
+          <div class="card graficos-dona">
+            <div class="donut-container">
+              <div class="donut-item">
+                <h4>Gastos (%)</h4>
+                <canvas id="graficoGastos"></canvas>
+              </div>
+              <div class="donut-item">
+                <h4>Ingresos (%)</h4>
+                <canvas id="graficoIngresos"></canvas>
+              </div>
             </div>
           </div>
         </div>
-        
       </section>
-    
-      <section class="chart-section">
-        <div class="card" style="height: 400px;">
-          <h4>Distribución por Categoría</h4>
-          <canvas id="graficoCategorias"></canvas>
+
+      <!-- GRÁFICOS DE CATEGORÍAS -->
+      <section class="chart-section" style="display: flex; gap: 32px;">
+        <div class="card" style="height: 400px; flex: 1;">
+          <h4>Gastos por Categoría</h4>
+          <canvas id="graficoCategoriasGasto"></canvas>
+        </div>
+        <div class="card" style="height: 400px; flex: 1;">
+          <h4>Ingresos por Categoría</h4>
+          <canvas id="graficoCategoriasIngreso"></canvas>
         </div>
       </section>
-    
+
+      <!-- TRANSACCIONES RECIENTES e IMPORT/EXPORT -->
       <section class="recent-transactions">
         <div class="card">
-            <form id="formImportarExcel" enctype="multipart/form-data" style="display: flex; gap: 8px;">
-                <select name="cuenta_id" required>
-              {% for c in cuentas %}
-                <option value="{{ c.id }}" {% if c.id == cuenta.id %}selected{% endif %}>
-                  {{ c.nombre }}
-                </option>
-              {% endfor %}
-                <input type="file" name="archivo_excel" accept=".xlsx,.xls,.csv" required>
-                <button type="submit">Importar Excel</button>
+            <form id="formImportarExcel" class="excel-form" enctype="multipart/form-data">
+              <div class="excel-row">
+                <div class="excel-group">
+                  <label for="cuentaImportar">Tarjeta</label>
+                  <select id="cuentaImportar" name="cuenta_id" required>
+                    {% for c in cuentas %}
+                      <option value="{{ c.id }}" {% if c.id == cuenta.id %}selected{% endif %}>{{ c.nombre }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="excel-group">
+                  <label for="excelFile">Archivo Excel</label>
+                  <label class="import-btn">
+                    <input id="excelFile" type="file" name="archivo_excel" accept=".xlsx,.xls,.csv" required hidden>
+                    <i class="fa fa-file-import"></i> Seleccionar archivo
+                  </label>
+                  <span id="file-name" class="excel-file-name"></span>
+                </div>
+                <button type="submit" class="filter-btn"><i class="fa fa-upload"></i> Importar Excel</button>
+              </div>
             </form>
-
           <button class="export-btn" onclick="exportarExcel()">
             <i class="fas fa-file-excel"></i> Exportar a Excel
           </button>
@@ -145,9 +184,8 @@
           </table>
         </div>
       </section>
-    
       {% else %}
-      <!-- Bienvenida para usuario sin cuentas -->
+      <!-- BIENVENIDA SIN CUENTA -->
       <section class="welcome-section">
         <div class="welcome-card">
           <h1>👋 ¡Hola {{ usuario.nombre }}!</h1>
@@ -157,128 +195,191 @@
             <i class="fas fa-plus-circle"></i> Crear mi primera tarjeta
           </a>
         </div>
-      </section>      
+      </section>
       {% endif %}
     </main>
-    
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // 👇 Datos del resumen (balance total)
-      const resumen = {
-        ingresos: {{ datos_grafico.ingresos | round(2) }},
-        gastos: {{ datos_grafico.gastos | round(2) }},
-        balance: {{ datos_grafico.balance_neto | round(2) }}
-      };
-  
-      const porcentaje = (valor) => {
-        const total = resumen.ingresos + resumen.gastos;
-        return total > 0 ? (valor / total * 100).toFixed(1) : 0;
-      };
-  
-      // 👇 Donut: Gastos vs resto
-      new Chart(document.getElementById('graficoGastos'), {
-        type: 'doughnut',
-        data: {
-          labels: ['Gastos', 'Resto'],
-          datasets: [{
-            data: [resumen.gastos, resumen.ingresos],
-            backgroundColor: ['#ff4d4d', '#e0e0e0']
-          }]
-        },
-        options: {
-          cutout: '70%',
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: function(ctx) {
-                  return `${ctx.label}: ${porcentaje(ctx.raw)}%`;
-                }
-              }
-            },
-            legend: { display: false }
-          }
-        }
-      });
-  
-      // 👇 Donut: Ingresos vs resto
-      new Chart(document.getElementById('graficoIngresos'), {
-        type: 'doughnut',
-        data: {
-          labels: ['Ingresos', 'Resto'],
-          datasets: [{
-            data: [resumen.ingresos, resumen.gastos],
-            backgroundColor: ['#4caf50', '#e0e0e0']
-          }]
-        },
-        options: {
-          cutout: '70%',
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: function(ctx) {
-                  return `${ctx.label}: ${porcentaje(ctx.raw)}%`;
-                }
-              }
-            },
-            legend: { display: false }
-          }
-        }
-      });
-  
-      // 👇 Datos por categoría (para gráfico de barras)
-      const categorias = {{ datos_grafico_categoria | default([]) | tojson }};
-const labels = categorias.map(item => item.nombre);
-const valores = categorias.map(item => item.total);
-const colores = categorias.map(item => item.tipo === "GASTO" ? "#e74c3c" : "#ff4d4d");
+<!-- ========== SCRIPTS ========== -->
+<script>
+let chartGastos = null;
+let chartIngresos = null;
+let chartCategoriasGasto = null;
+let chartCategoriasIngreso = null;
 
-const canvas = document.getElementById('graficoCategorias');
+function obtenerDatosGraficos(year, month, day) {
+  const cuentaId = document.getElementById("filtroCuentaId").value;
+  let params = [];
+  if (cuentaId) params.push("cuenta_id=" + cuentaId);
+  if (year) params.push("year=" + year);
+  if (month) params.push("month=" + month);
+  if (day) params.push("day=" + day);
+  const url = "/api/datos_graficos?" + params.join("&");
+  return fetch(url).then(resp => resp.json());
+}
 
-// 👇 Ajustar dinámicamente la altura según cantidad de categorías
-canvas.height = Math.min(categorias.length * 40, 400);
+function porcentaje(valor, total) {
+  return total > 0 ? (valor / total * 100).toFixed(1) : 0;
+}
 
-const ctx = canvas.getContext('2d');
-new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: labels,
-    datasets: [{
-      label: 'Monto por Categoría',
-      data: valores,
-      backgroundColor: colores,
-      barThickness: 20
-    }]
-  },
-  options: {
-    indexAxis: 'y',
-    maintainAspectRatio: false,
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: {
-          label: (context) => `₡${context.raw.toLocaleString()}`
-        }
-      }
+function actualizarGraficos(datos) {
+  const gastos = datos.datos_grafico.gastos;
+  const ingresos = datos.datos_grafico.ingresos;
+  const total = ingresos + gastos;
+
+  if (chartGastos) chartGastos.destroy();
+  chartGastos = new Chart(document.getElementById('graficoGastos').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Gastos', 'Resto'],
+      datasets: [{
+        data: [gastos, ingresos],
+        backgroundColor: ['#ff4d4d', '#e0e0e0']
+      }]
     },
-    scales: {
-      x: {
-        ticks: {
-          callback: value => `₡${value}`
+    options: {
+      cutout: '70%',
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              return `${ctx.label}: ${porcentaje(ctx.raw, total)}%`;
+            }
+          }
+        },
+        legend: { display: false }
+      }
+    }
+  });
+
+  if (chartIngresos) chartIngresos.destroy();
+  chartIngresos = new Chart(document.getElementById('graficoIngresos').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Ingresos', 'Resto'],
+      datasets: [{
+        data: [ingresos, gastos],
+        backgroundColor: ['#4caf50', '#e0e0e0']
+      }]
+    },
+    options: {
+      cutout: '70%',
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              return `${ctx.label}: ${porcentaje(ctx.raw, total)}%`;
+            }
+          }
+        },
+        legend: { display: false }
+      }
+    }
+  });
+
+  // Barras GASTOS por categoría
+  const categoriasGasto = datos.datos_grafico_categoria || [];
+  const labelsGasto = categoriasGasto.map(item => item.nombre);
+  const valoresGasto = categoriasGasto.map(item => item.total);
+  const canvasGasto = document.getElementById('graficoCategoriasGasto');
+  canvasGasto.height = Math.min(categoriasGasto.length * 40, 400);
+  if (chartCategoriasGasto) chartCategoriasGasto.destroy();
+  chartCategoriasGasto = new Chart(canvasGasto.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: labelsGasto,
+      datasets: [{
+        label: 'Gastos por Categoría',
+        data: valoresGasto,
+        backgroundColor: '#e74c3c',
+        barThickness: 20
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      maintainAspectRatio: false,
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (context) => `₡${context.raw.toLocaleString()}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            callback: value => `₡${value}`
+          }
         }
       }
     }
-  }
+  });
+
+  // Barras INGRESOS por categoría
+  const categoriasIngreso = datos.datos_grafico_categoria_ingreso || [];
+  const labelsIngreso = categoriasIngreso.map(item => item.nombre);
+  const valoresIngreso = categoriasIngreso.map(item => item.total);
+  const canvasIngreso = document.getElementById('graficoCategoriasIngreso');
+  canvasIngreso.height = Math.min(categoriasIngreso.length * 40, 400);
+  if (chartCategoriasIngreso) chartCategoriasIngreso.destroy();
+  chartCategoriasIngreso = new Chart(canvasIngreso.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: labelsIngreso,
+      datasets: [{
+        label: 'Ingresos por Categoría',
+        data: valoresIngreso,
+        backgroundColor: '#4caf50',
+        barThickness: 20
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      maintainAspectRatio: false,
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (context) => `₡${context.raw.toLocaleString()}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            callback: value => `₡${value}`
+          }
+        }
+      }
+    }
+  });
+}
+
+document.getElementById('btnFiltrar').onclick = () => {
+  const year = document.getElementById('inputYear').value;
+  const month = document.getElementById('inputMonth').value;
+  const day = document.getElementById('inputDay').value;
+  obtenerDatosGraficos(year, month, day).then(actualizarGraficos);
+};
+document.getElementById('btnLimpiar').onclick = () => {
+  document.getElementById('inputYear').value = '';
+  document.getElementById('inputMonth').value = '';
+  document.getElementById('inputDay').value = '';
+  obtenerDatosGraficos('', '', '').then(actualizarGraficos);
+};
+
+document.querySelector('select[name="cuenta_id"]').addEventListener('change', function() {
+  document.getElementById('filtroCuentaId').value = this.value;
+  obtenerDatosGraficos('', '', '').then(actualizarGraficos);
 });
 
-    });
-  </script>
-  
-  <script src="static/js/script_excel.js"></script>
-  
-  
-  
-
+window.addEventListener('DOMContentLoaded', function() {
+  obtenerDatosGraficos('', '', '').then(actualizarGraficos);
+});
+</script>
+<script src="static/js/script_excel.js"></script>
 </body>
 </html>

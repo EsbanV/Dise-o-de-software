@@ -1,4 +1,6 @@
 from utilidades.validaciones import *
+from better_profanity import profanity
+import os
 
 def validar_datos_usuario(nombre, correo, contrasena):
     if not validar_nombre(nombre):
@@ -27,3 +29,12 @@ def validar_datos_transaccion(servicio_base_datos, cuenta_id, categoria_id, mont
         validar_fecha(fecha)
 
     return cuenta, categoria
+
+def cargar_palabras_ofensivas(path_relativo="configuracion/palabras_ofensivas.txt"):
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    proyecto_dir = os.path.abspath(os.path.join(base_dir, ".."))
+    path_absoluto = os.path.join(proyecto_dir, path_relativo)
+    print("Buscando archivo en:", path_absoluto)
+    with open(path_absoluto, encoding="utf-8") as f:
+        palabras = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+    profanity.add_censor_words(palabras)

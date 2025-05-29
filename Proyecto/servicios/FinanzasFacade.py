@@ -113,11 +113,45 @@ class GraficoFacade:
     def __init__(self, grafico_servicio):
         self.grafico_servicio = grafico_servicio
 
+    # ----- DATOS CRUDOS -----
     def obtener_datos_crudos(self, cuenta_id):
         return self.grafico_servicio.obtener_datos_crudos(cuenta_id)
 
+    def obtener_datos_crudos_por_anio(self, cuenta_id, year):
+        return self.grafico_servicio.obtener_datos_crudos_por_anio(cuenta_id, year)
+
+    def obtener_datos_crudos_por_mes(self, cuenta_id, year, month):
+        return self.grafico_servicio.obtener_datos_crudos_por_mes(cuenta_id, year, month)
+
+    def obtener_datos_crudos_por_dia(self, cuenta_id, year, month, day):
+        return self.grafico_servicio.obtener_datos_crudos_por_dia(cuenta_id, year, month, day)
+
+    # ----- GASTOS POR CATEGORÍA -----
     def obtener_datos_categorias_gasto(self, cuenta_id):
         return self.grafico_servicio.obtener_datos_categorias_gasto(cuenta_id)
+
+    def obtener_datos_categorias_gasto_por_anio(self, cuenta_id, year):
+        return self.grafico_servicio.obtener_datos_categorias_gasto_por_anio(cuenta_id, year)
+
+    def obtener_datos_categorias_gasto_por_mes(self, cuenta_id, year, month):
+        return self.grafico_servicio.obtener_datos_categorias_gasto_por_mes(cuenta_id, year, month)
+
+    def obtener_datos_categorias_gasto_por_dia(self, cuenta_id, year, month, day):
+        return self.grafico_servicio.obtener_datos_categorias_gasto_por_dia(cuenta_id, year, month, day)
+
+    # ----- INGRESOS POR CATEGORÍA -----
+    def obtener_datos_categorias_ingreso(self, cuenta_id):
+        return self.grafico_servicio.obtener_datos_categorias_ingreso(cuenta_id)
+
+    def obtener_datos_categorias_ingreso_por_anio(self, cuenta_id, year):
+        return self.grafico_servicio.obtener_datos_categorias_ingreso_por_anio(cuenta_id, year)
+
+    def obtener_datos_categorias_ingreso_por_mes(self, cuenta_id, year, month):
+        return self.grafico_servicio.obtener_datos_categorias_ingreso_por_mes(cuenta_id, year, month)
+
+    def obtener_datos_categorias_ingreso_por_dia(self, cuenta_id, year, month, day):
+        return self.grafico_servicio.obtener_datos_categorias_ingreso_por_dia(cuenta_id, year, month, day)
+
 
 class ComunidadFacade:
     def __init__(self, autor_servicio, publicacion_servicio, notificacion_servicio):

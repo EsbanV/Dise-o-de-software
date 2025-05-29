@@ -5,18 +5,17 @@ document.getElementById('formImportarExcel').addEventListener('submit', function
 
     fetch('/importar_excel', {
         method: 'POST',
-        body: formData
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
     .then(response => {
         if (!response.ok) {
             return response.text().then(text => { throw new Error(text) });
         }
-        return response.text();  // O .json() si tu backend responde JSON
+        return response.text();
     })
     .then(result => {
         alert('Importación exitosa.');
-        // Si tu backend manda un mensaje, muestra aquí el resultado
-        // location.reload(); // Si quieres refrescar los datos automáticamente
     })
     .catch(error => {
         alert('Error al importar: ' + error.message);
