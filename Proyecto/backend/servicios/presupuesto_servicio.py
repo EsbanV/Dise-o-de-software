@@ -37,6 +37,9 @@ class PresupuestoServicio:
         else:
             logging.info("No se encontró presupuesto para la categoría %s", categoria_id)
         return presupuesto
+    
+    def obtener_todos(self, Presupuesto):
+        return self.repositorio.obtener_todos(Presupuesto)
 
     
     def eliminar_presupuesto(self, presupuesto_id):

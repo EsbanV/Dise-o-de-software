@@ -59,15 +59,42 @@ class TransaccionServicio:
 
         return transaccion
 
-    def obtener_transacciones_por_categoria(self, categoria_id):
-        transacciones = self.transaccion_repositorio.obtener_con_filtro(Transaccion, [Transaccion.categoria_id == categoria_id])
-        logging.info("Obtenidas %d transacciones para la categoría %s", len(transacciones), categoria_id)
+    def obtener_transacciones_por_categoria(self, categoria_id, limit=None, offset=0, year=None, month=None, day=None):
+        transacciones = self.transaccion_repositorio.obtener_con_filtro(
+            Transaccion, 
+            [Transaccion.categoria_id == categoria_id],
+            limit=limit, offset=offset, year=year, month=month, day=day
+        )
+        logging.info(
+            "Obtenidas %d transacciones para la categoría %s (limit %s, offset %s, year=%s, month=%s, day=%s)",
+            len(transacciones), categoria_id, limit, offset, year, month, day
+        )
         return transacciones
 
-    def obtener_transacciones_por_cuenta(self, cuenta_id):
-        return Transaccion.query.options(
-            joinedload(Transaccion.categoria)
-        ).filter_by(cuenta_bancaria_id=cuenta_id).all()
+    def obtener_transacciones_por_cuenta(self, cuenta_id, limit=None, offset=0, year=None, month=None, day=None):
+        return self.transaccion_repositorio.obtener_por_cuenta_con_categoria(
+            cuenta_id, limit=limit, offset=offset, year=year, month=month, day=day
+        )
+
+    def obtener_transacciones_por_categoria_y_cuenta(self, cuenta_id, categoria_id, limit=None, offset=0, year=None, month=None, day=None):
+        return self.transaccion_repositorio.obtener_con_filtro(
+            Transaccion,
+            [Transaccion.cuenta_bancaria_id == cuenta_id, Transaccion.categoria_id == categoria_id],
+            limit=limit, offset=offset, year=year, month=month, day=day
+        )
+
+    def obtener_transacciones_por_cuenta_con_categoria(self, cuenta_id, limit=None, offset=0, year=None, month=None, day=None):
+        return self.transaccion_repositorio.obtener_por_cuenta_con_categoria(
+            cuenta_id, limit=limit, offset=offset, year=year, month=month, day=day
+        )
+    
+    def obtener_todos(self, Transaccion):
+        return self.transaccion_repositorio.obtener_todos(Transaccion)
+    
+    def contar_transacciones(self, cuenta_id, year=None, month=None, day=None):
+        return self.transaccion_repositorio.contar_transacciones(
+            cuenta_id, year=year, month=month, day=day
+        )
 
     def actualizar_transaccion(self, transaccion_id, nuevo_monto):
         if not validar_monto(nuevo_monto):
@@ -109,15 +136,6 @@ class TransaccionServicio:
             logging.error("Error al eliminar transacción ID %s: %s", transaccion_id, e)
             raise e
         return transaccion
-
-    def obtener_por_categoria_y_cuenta(self, cuenta_id, categoria_id):
-        return self.transaccion_repositorio.obtener_con_filtro(
-            Transaccion,
-            [Transaccion.cuenta_bancaria_id == cuenta_id, Transaccion.categoria_id == categoria_id]
-        )
-    
-    def obtener_transacciones_por_cuenta_con_categoria(self, cuenta_id):
-        return self.transaccion_repositorio.obtener_por_cuenta_con_categoria(cuenta_id)
 
     def transaccion_duplicada(self, cuenta_id, categoria, descripcion, monto, fecha):
         desc_norm = (descripcion or "").strip().lower()

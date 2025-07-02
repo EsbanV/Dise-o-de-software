@@ -195,5 +195,5 @@ class ExportacionServicio:
             except Exception as e:
                 print(f"Error en fila {idx}: {e}")
                 errores.append(f"Fila {idx+encabezado_idx+2}: {str(e)}")
-
-        return {"ok": len(errores) == 0, "importadas": importadas, "errores": errores}
+                
+        return {"ok": len(errores) == 0, "importadas": importadas, "errores": "Algunas Categorias no pudieron importarse. Razon: Excede maximo de categorias (max: 8)"}

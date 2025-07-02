@@ -1,73 +1,176 @@
-from flask import Blueprint, request, jsonify, session, abort, current_app
+from flask import Blueprint, request, jsonify, session, current_app
 
 publicacion_rutas = Blueprint('publicacion_rutas', __name__, url_prefix='/api/publicaciones')
 
-# Crear una publicación
 @publicacion_rutas.route('/', methods=['POST'])
 def crear_publicacion():
+    """
+    summary: Crea una nueva publicación en el foro.
+    description: Permite a un usuario autenticado crear una publicación.
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            titulo: {type: string}
+            contenido: {type: string}
+          required: [titulo, contenido]
+    responses:
+      201:
+        description: Publicación creada exitosamente.
+        schema:
+          type: object
+          properties:
+            success: {type: boolean}
+            message: {type: string}
+            publicacion_id: {type: integer}
+      400:
+        description: Faltan datos requeridos o error en la creación.
+      401:
+        description: No autenticado.
+    """
     usuario_id = session.get('usuario_id')
     if not usuario_id:
         return jsonify({'success': False, 'error': 'No autenticado.'}), 401
 
     data = request.get_json()
-    titulo    = data.get('titulo', '').strip()
+    titulo = data.get('titulo', '').strip()
     contenido = data.get('contenido', '').strip()
     if not (titulo and contenido):
-        return jsonify({'success': False, 'error': 'Faltan datos requeridos.', 'titulo': titulo, 'contenido': contenido}), 400
+        return jsonify({'success': False, 'error': 'Faltan datos requeridos.'}), 400
     try:
         publicacion = current_app.comunidad_facade.crear_publicacion(usuario_id, titulo, contenido)
         return jsonify({'success': True, 'message': 'Publicación creada.', 'publicacion_id': publicacion.id}), 201
     except Exception as e:
+        print("watafak")
         return jsonify({'success': False, 'error': f'Error al crear la publicación: {e}'}), 400
 
-# Listar todas las publicaciones
 @publicacion_rutas.route('/', methods=['GET'])
 def listar_publicaciones():
-    usuario_id = session.get('usuario_id')
-    if not usuario_id:
+    """
+    summary: Lista todas las publicaciones del foro (con paginación).
+    description: Permite obtener publicaciones paginadas.
+    parameters:
+      - in: query
+        name: limit
+        type: integer
+        required: false
+        default: 10
+      - in: query
+        name: offset
+        type: integer
+        required: false
+        default: 0
+    responses:
+      200:
+        description: Publicaciones obtenidas correctamente.
+        schema:
+          type: object
+          properties:
+            success: {type: boolean}
+            publicaciones:
+              type: array
+              items:
+                type: object
+            total: {type: integer}
+      401:
+        description: No autenticado.
+      500:
+        description: Error interno.
+    """
+    usuario_id_session = session.get('usuario_id')
+    if not usuario_id_session:
         return jsonify({'success': False, 'error': 'No autenticado.'}), 401
 
-    # Recibe limit y offset de los parámetros de la petición
+    usuario_id = request.args.get('usuario_id', type=int)
+    print(f"Query param usuario_id: {usuario_id}")
     limit = request.args.get('limit', default=10, type=int)
     offset = request.args.get('offset', default=0, type=int)
-    print(f"Limit recibido: {limit} ({type(limit)}), Offset recibido: {offset} ({type(offset)})")
-
-
     try:
-        # La facade debe retornar una tupla: (lista_paginada, total)
-        publicaciones, total = current_app.comunidad_facade.obtener_publicaciones(limit=limit, offset=offset)
-        resultado = [publicacion.to_dict() for publicacion in publicaciones]
+        if usuario_id:
+            print("Filtrando publicaciones por usuario:", usuario_id)
+            publicaciones, total = current_app.comunidad_facade.obtener_publicaciones_por_usuario(
+                usuario_id=usuario_id, limit=limit, offset=offset
+            )
+        else:
+            print("Trayendo todas las publicaciones (no filtrado por usuario)")
+            publicaciones, total = current_app.comunidad_facade.obtener_publicaciones(limit=limit, offset=offset)
+
+        resultado = [p.to_dict() for p in publicaciones]
         return jsonify({'success': True, 'publicaciones': resultado, 'total': total}), 200
     except Exception as e:
-        import traceback
-        traceback.print_exc()  # Esto imprime el error real y la línea exacta en consola
-        print("Error real:", repr(e))  # Esto imprime el error como string
         return jsonify({'success': False, 'error': f'Error al obtener publicaciones: {e}'}), 500
 
-
-# Ver una publicación y sus comentarios
-# Ejemplo dentro del endpoint (publicacion_rutas.py):
 @publicacion_rutas.route('/<int:publicacion_id>', methods=['GET'])
 def obtener_publicacion(publicacion_id):
+    """
+    summary: Obtiene una publicación por ID junto a sus comentarios.
+    description: Devuelve la publicación y todos sus comentarios.
+    parameters:
+      - in: path
+        name: publicacion_id
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Publicación encontrada.
+        schema:
+          type: object
+          properties:
+            success: {type: boolean}
+            publicacion:
+              type: object
+      401:
+        description: No autenticado.
+      404:
+        description: Publicación no encontrada.
+    """
     usuario_id = session.get('usuario_id')
     if not usuario_id:
         return jsonify({'success': False, 'error': 'No autenticado.'}), 401
     try:
         publicacion = current_app.comunidad_facade.obtener_publicacion(publicacion_id)
-        comentarios = [
-            c.to_dict() for c in publicacion.comentarios
-        ] if hasattr(publicacion, "comentarios") else []
-        return jsonify({'success': True, 'publicacion': {
-            **publicacion.to_dict(),
-            "comentarios": comentarios  # <-- AGREGAR ESTO
-        }}), 200
+        comentarios = [c.to_dict() for c in getattr(publicacion, "comentarios", [])]
+        pub_dict = publicacion.to_dict()
+        pub_dict["comentarios"] = comentarios
+        return jsonify({'success': True, 'publicacion': pub_dict}), 200
     except Exception as e:
         return jsonify({'success': False, 'error': f'Error al obtener la publicación: {e}'}), 404
 
-
-# Crear un comentario en una publicación
 @publicacion_rutas.route('/<int:publicacion_id>/comentarios', methods=['POST'])
 def crear_comentario(publicacion_id):
+    """
+    summary: Crea un comentario en una publicación.
+    description: Permite a un usuario autenticado comentar en una publicación existente.
+    parameters:
+      - in: path
+        name: publicacion_id
+        type: integer
+        required: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            contenido: {type: string}
+          required: [contenido]
+    responses:
+      201:
+        description: Comentario agregado correctamente.
+        schema:
+          type: object
+          properties:
+            success: {type: boolean}
+            message: {type: string}
+            comentario: {type: object}
+      400:
+        description: Faltan datos requeridos o error en la creación.
+      401:
+        description: No autenticado.
+    """
     usuario_id = session.get('usuario_id')
     if not usuario_id:
         return jsonify({'success': False, 'error': 'No autenticado.'}), 401

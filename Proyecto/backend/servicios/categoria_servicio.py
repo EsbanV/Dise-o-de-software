@@ -9,7 +9,7 @@ class CategoriaServicio:
         self.repositorio = repositorio
         self.presupuesto_servicio = presupuesto_servicio
 
-    def crear_categoria(self, nombre, tipo, presupuesto, cuenta_id):
+    def crear_categoria(self, cuenta_id, nombre, tipo, presupuesto):
         categorias = self.repositorio.obtener_con_filtro(Categoria, [Categoria.cuenta_id == cuenta_id])
         if len(categorias) > 8:
             raise ValueError("No puedes tener más de 8 categorías en esta cuenta.")
@@ -17,11 +17,12 @@ class CategoriaServicio:
         if not validar_nombre(nombre):
             raise ValueError("Nombre de categoría inválido")  
 
+        print(tipo)
         if tipo == "INGRESO":
             if presupuesto:
                 raise ValueError("No puedes asignar presupuesto a una categoria tipo ingreso")
 
-        nueva_categoria = CategoriaFactory.crear_categoria(nombre=nombre, tipo=tipo, cuenta_id=cuenta_id)
+        nueva_categoria = CategoriaFactory.crear_categoria(cuenta_id=cuenta_id, nombre=nombre, tipo=tipo)
         
         try:
             self.repositorio.agregar(nueva_categoria)
@@ -41,6 +42,9 @@ class CategoriaServicio:
         else:
             return []
         return categorias
+    
+    def obtener_todos(self, Categoria):
+        return self.repositorio.obtener_todos(Categoria)
     
     def actualizar_categoria(self, categoria_id, nombre):
         if not validar_nombre(nombre):

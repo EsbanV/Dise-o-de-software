@@ -21,12 +21,14 @@ def validar_password(password, min_length=8):
         return False
     return True
 
-def validar_nombre(nombre, min_length=2):
-    if not nombre or len(nombre.strip()) < min_length:
+def validar_nombre(nombre, min_length=2, max_length=60):
+    if not isinstance(nombre, str):
         return False
-    if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', nombre):
+    nombre = nombre.strip()
+    if len(nombre) < min_length or len(nombre) > max_length:
         return False
-    return True
+    pattern = r"^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-']+$"
+    return bool(re.match(pattern, nombre))
 
 def validar_monto(monto):
     try:

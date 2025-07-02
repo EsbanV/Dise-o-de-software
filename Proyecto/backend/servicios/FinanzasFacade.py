@@ -20,8 +20,8 @@ class UsuarioFacade:
     def obtener_usuario_activo(self, usuario_id):
         return self.usuario_servicio.obtener_usuario_activo(usuario_id)
     
-    def obtener_resumen(self, usuario_id, cuenta_id=None):
-        return self.usuario_servicio.obtener_resumen(usuario_id, cuenta_id)
+    def obtener_resumen(self, usuario_id, cuenta_id=None, year=None, month=None, day=None):
+        return self.usuario_servicio.obtener_resumen(usuario_id, cuenta_id, year=year, month=month, day=day)
     
     def datos_usuario(self, usuario_id):
         return self.usuario_servicio.datos_usuario(usuario_id)
@@ -95,14 +95,25 @@ class TransaccionFacade:
             fecha = datetime.now()
         return self.transaccion_servicio.registrar_transaccion(cuenta_id, categoria_id, descripcion, monto, fecha)
 
-    def obtener_transacciones_por_cuenta(self, cuenta_id):
-        return self.transaccion_servicio.obtener_transacciones_por_cuenta(cuenta_id)
+    def obtener_transacciones_por_cuenta(self, cuenta_id, limit=None, offset=0, year=None, month=None, day=None):
+        return self.transaccion_servicio.obtener_transacciones_por_cuenta(
+            cuenta_id, limit=limit, offset=offset, year=year, month=month, day=day
+        )
 
-    def obtener_transacciones_por_categoria(self, categoria_id):
-        return self.transaccion_servicio.obtener_transacciones_por_categoria(categoria_id)
-    
-    def obtener_transacciones_por_categoria_y_cuenta(self, cuenta_id, categoria_id):
-        return self.transaccion_servicio.obtener_transacciones_por_categoria_y_cuenta(cuenta_id, categoria_id)
+    def obtener_transacciones_por_categoria(self, categoria_id, limit=None, offset=0, year=None, month=None, day=None):
+        return self.transaccion_servicio.obtener_transacciones_por_categoria(
+            categoria_id, limit=limit, offset=offset, year=year, month=month, day=day
+        )
+
+    def obtener_transacciones_por_categoria_y_cuenta(self, cuenta_id, categoria_id, limit=None, offset=0, year=None, month=None, day=None):
+        return self.transaccion_servicio.obtener_transacciones_por_categoria_y_cuenta(
+            cuenta_id, categoria_id, limit=limit, offset=offset, year=year, month=month, day=day
+        )
+
+    def contar_transacciones(self, cuenta_id, year=None, month=None, day=None):
+        return self.transaccion_servicio.contar_transacciones(
+            cuenta_id, year=year, month=month, day=day
+        )
 
     def actualizar_transaccion(self, transaccion_id, nuevo_monto):
         return self.transaccion_servicio.actualizar_transaccion(transaccion_id, nuevo_monto)
@@ -179,6 +190,9 @@ class ComunidadFacade:
 
     def obtener_publicaciones(self, limit, offset):
         return self.publicacion_servicio.obtener_publicaciones(limit, offset)
+    
+    def obtener_publicaciones_por_usuario(self, usuario_id, limit, offset):
+        return self.publicacion_servicio.obtener_publicaciones_por_usuario(usuario_id, limit, offset)
 
     def agregar_comentario(self, publicacion_id, usuario_id, contenido):
         print("[FACHADA] agregar_comentario llamado")
@@ -188,8 +202,8 @@ class ComunidadFacade:
     def obtener_notificaciones(self, usuario_id):
         return self.notificacion_servicio.obtener_notificaciones(usuario_id)
 
-    def marcar_notificacion_leida(self, notificacion_id):
-        return self.notificacion_servicio.marcar_notificacion_leida(notificacion_id)
+    def marcar_notificacion_leida(self, notificacion_id, leida=True):
+        return self.notificacion_servicio.marcar_notificacion_leida(notificacion_id, leida)
 
 class ExportacionFacade:
     def __init__(self, exportacion_servicio):

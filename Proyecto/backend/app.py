@@ -42,7 +42,7 @@ def create_app():
     categoria_servicio = CategoriaServicio(repositorio, presupuesto_servicio)
     cuenta_bancaria_servicio = CuentaBancariaServicio(repositorio, categoria_servicio)
     transaccion_servicio = TransaccionServicio(transaccion_repositorio, categoria_servicio)
-    usuario_servicio = UsuarioServicio(transaccion_repositorio, cuenta_bancaria_servicio, categoria_servicio, transaccion_servicio)
+    usuario_servicio = UsuarioServicio(repositorio, transaccion_repositorio, cuenta_bancaria_servicio, categoria_servicio, transaccion_servicio)
 
     autor_servicio = AutorService(repositorio, usuario_servicio, confirmation_observers = [observer], author_observers = [observer])
     publicacion_servicio = PublicacionService(repositorio, publicacion_repositorio, usuario_servicio, comment_observers = [observer], publication_observers = [observer])
@@ -97,4 +97,4 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
-app.run(debug=True, host="127.0.0.1", port=5000)
+    app.run(debug=True, host="127.0.0.1", port=5000)

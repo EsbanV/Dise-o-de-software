@@ -10,7 +10,7 @@ class NotificacionService:
         return Notificacion.query.filter_by(usuario_id=usuario_id).order_by(Notificacion.fecha_creacion.desc()).all()
 
     
-    def marcar_notificacion_leida(self, notificacion_id: int):
+    def marcar_notificacion_leida(self, notificacion_id: int, leida= True):
         notificacion = Notificacion.query.get_or_404(notificacion_id)
         notificacion.leida = True
         self.repositorio.agregar(notificacion)

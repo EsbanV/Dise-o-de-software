@@ -8,8 +8,9 @@ from utilidades.validaciones_macro import cargar_palabras_ofensivas
 profanity.load_censor_words()
 cargar_palabras_ofensivas("configuracion/palabras_ofensivas.txt")
 
-LIMITE_CARACTERES_PUBLICACION = 500
-LIMITE_CARACTERES_TITULO = 100
+LIMITE_CARACTERES_PUBLICACION = 1500
+LIMITE_CARACTERES_COMENTARIO = 500
+LIMITE_CARACTERES_TITULO = 200
 class PublicacionService:
 
     def __init__(self, repositorio, publicacion_repositorio, usuario_servicio,comment_observers=None, publication_observers=None):
@@ -22,14 +23,23 @@ class PublicacionService:
     def comentario_valido(self, texto):
         return not profanity.contains_profanity(texto)
     
+    def contenido_valido(self, texto):
+        return not profanity.contains_profanity(texto)
+    
     
     def crear_publicacion(self, usuario_id: int, titulo: str, contenido: str) -> Publicacion:
+        from better_profanity import profanity
+        print(profanity.contains_profanity("a" * 3000))
+
         if len(contenido) > LIMITE_CARACTERES_PUBLICACION:
             raise ValueError(f"La publicación no puede superar los {LIMITE_CARACTERES_PUBLICACION} caracteres.")
         if len(titulo) > LIMITE_CARACTERES_TITULO:
             raise ValueError(f"El título no puede superar los {LIMITE_CARACTERES_TITULO} caracteres.")
 
-        if not self.comentario_valido(contenido) or not self.comentario_valido(titulo):
+        if not self.contenido_valido(titulo):
+            raise ValueError("La publicacion contiene palabras inapropiadas.")
+        
+        if not self.contenido_valido(contenido):
             raise ValueError("La publicacion contiene palabras inapropiadas.")
         
         usuario = self.usuario_servicio.obtener_usuario_activo(usuario_id)
@@ -51,12 +61,13 @@ class PublicacionService:
     def obtener_publicaciones(self, limit, offset):
         return self.publicacion_repositorio.obtener_publicaciones(limit, offset)
 
-
+    def obtener_publicaciones_por_usuario(self, usuario_id, limit, offset):
+        return self.publicacion_repositorio.obtener_publicaciones_por_usuario(usuario_id, limit, offset)
     
     def agregar_comentario(self, publicacion_id: int, usuario_id: int, contenido: str):
         print("[SERVICIO] agregar_comentario ejecutado")
-        if len(contenido) > LIMITE_CARACTERES_PUBLICACION:
-            raise ValueError(f"La publicación no puede superar los {LIMITE_CARACTERES_PUBLICACION} caracteres.")
+        if len(contenido) > LIMITE_CARACTERES_COMENTARIO:
+            raise ValueError(f"La publicación no puede superar los {LIMITE_CARACTERES_COMENTARIO} caracteres.")
         if not self.comentario_valido(contenido):
             raise ValueError("El comentario contiene palabras inapropiadas.")
 

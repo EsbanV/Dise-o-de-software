@@ -16,7 +16,7 @@ class Transaccion(db.Model):
     def __repr__(self):
         return f'<Transaccion {self.id}>'
 
-    def to_dict(self, include_categoria_nombre=False):
+    def to_dict(self, include_categoria_nombre=True):
         data = {
             "id": self.id,
             "monto": self.monto,

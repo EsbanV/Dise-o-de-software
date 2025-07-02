@@ -48,6 +48,9 @@ class CuentaBancariaServicio:
         logging.info("Obtenidas %d cuentas para el usuario %s", len(cuentas), usuario_id)
         return cuentas
     
+    def obtener_todos(self, CuentaBancaria):
+        return self.repositorio.obtener_todos(CuentaBancaria)
+    
     def obtener_cuenta_por_id(self, cuenta_id):
         cuenta = self.repositorio.obtener_por_id(CuentaBancaria, cuenta_id)
         if cuenta:
